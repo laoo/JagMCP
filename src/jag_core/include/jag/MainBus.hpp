@@ -532,6 +532,9 @@ private:
   void write( std::uint32_t address, std::uint32_t size, std::uint32_t value );
   // Tom's registers in its internal I/O cycle, MEMCON1 and MEMCON2 among them, a word at a time
   void tomWrite( std::uint64_t cycle, std::uint32_t address, std::uint16_t value );
+  // A long word through the 32 bit window onto the line buffers ($F08800 on), in its I/O cycle at
+  // `address`, the data bus's lanes it names
+  void lineBufferLongWrite( std::uint64_t cycle, std::uint32_t address );
   bool objectGpuInterruptAhead( std::uint64_t cycle );
 
 public:

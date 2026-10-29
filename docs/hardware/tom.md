@@ -26,7 +26,11 @@ places they knowingly do not follow the netlist, each with what the FPGA simulat
   a write or a read meets the moment a buffer becomes shown, or a read is latched while the
   buffer's RAM does not drive its bus (the RAM enabled for half of the cycle, at `sys_clk`), the
   simulation differs: the pixel or the value read is zero. The test writes the buffers in the
-  vertical blank.
+  vertical blank. A GPU's phrase there is four words from the phrase's start, the high one first;
+  through the 32 bit window ($F08800 on) a GPU's long word writes both its pixels at once, as the
+  blitter's do; the DSP's writes through the window are not modelled. No reference records the
+  GPU's phrases or its writes through the window: they are checked against the console (all four
+  pixels of a phrase, both of a long word, in the console's cycles).
 - **The CLUT's accesses** are modelled without the cycles the object processor's reading takes
   from them; a RISC's read of the CLUT while the pixel path reads it (`pden`) does not reach the
   CLUT's buses.

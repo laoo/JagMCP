@@ -962,6 +962,18 @@ void MainBus::tomWrite( std::uint64_t cycle, std::uint32_t address, std::uint16_
   }
 }
 
+// lbuf.v aout[15] with a long word: both pixels at once (wea12, web12), the halves as the bus's
+// endianness orders them (dw: down, up); a write there off the line buffers moves no data
+void MainBus::lineBufferLongWrite( std::uint64_t cycle, std::uint32_t address )
+{
+  std::uint32_t const at = address & ~0x8000u;
+  if ( !Tom::decodes( at ) || ( at & 0x1fffu ) < 0x800u || bit( address, 1 ) )
+    return;
+  std::uint32_t const dwrite = static_cast<std::uint32_t>( mDataBus >> ( bit( address, 2 ) ? 0 : 32 ) );
+  mTom.write( cycle, at, static_cast<std::uint16_t>( mCon.bigend ? dwrite >> 16 : dwrite ) );
+  mTom.write( cycle, at | 2u, static_cast<std::uint16_t>( mCon.bigend ? dwrite : dwrite >> 16 ) );
+}
+
 char const* MainBus::busHolder() const
 {
   static constexpr std::array<char const*, 10> NAMES{ "68000", "blitter",          "GPU",     "68000",
@@ -2395,6 +2407,17 @@ void MainBus::data( std::uint64_t cycle, Gathered& g, Signals const& s, Control 
   // The GPU's cycle starts as Tom acknowledges it: a load's data moves now (64 bits: a phrase's
   // second long word is the register's, its first G_HIDATA's), a store waits for its memory cycle
   Control::Gateway const& ggc = c.gw[GPU];
+
+  struct TakenStore
+  {
+    std::uint32_t address;
+    std::uint32_t size;
+    std::uint32_t data;
+    std::uint32_t hi;
+    std::uint32_t halves;
+  };
+
+  std::optional<TakenStore> takenStore;
   if ( ggc.active && s.gw[GPU].gpuAck && ggc.progown ) // a fetch of the program: the long word at cpu_addr
   {
     std::uint32_t const fetch = gg.cpuAddr & ~3u;
@@ -2455,15 +2478,16 @@ void MainBus::data( std::uint64_t cycle, Gathered& g, Signals const& s, Control 
     }
     else
     {
-      gg.store = true;
-      gg.storeAddress = addr;
-      gg.storeSize = msized;
-      gg.storeData = gg.loadData; // Tom takes the data as it takes the cycle
-      gg.storeHi = gg.hirdata;
+      // Tom takes the data as it takes the cycle; the store waits below, for the cycle may be the
+      // last of the store before (a 16 bit device's, the next acknowledged as it writes)
+      takenStore = TakenStore{ .address = addr,
+                               .size = msized,
+                               .data = gg.loadData,
+                               .hi = gg.hirdata,
+                               .halves = msized >= 2 ? 1u << ( msized - 1 ) : 1u };
       // the data bus's lanes take it in the next cycle, justified ({hirdata, load_data}, wden)
       mGpuDrive = true;
       mGpuDriveData = upShift( static_cast<std::uint64_t>( gg.hirdata ) << 32 | gg.loadData, 1u << msized, true );
-      gg.storeHalves = msized >= 2 ? 1u << ( msized - 1 ) : 1u;
     }
   }
   // the object processor's header written back as CAS falls, from the data bus it drove
@@ -2538,14 +2562,8 @@ void MainBus::data( std::uint64_t cycle, Gathered& g, Signals const& s, Control 
       std::uint32_t const at = addr & ~0x8000u;
       if ( Tom::decodes( at ) && !bit( addr, 15 ) )
         tomWrite( cycle, addr, static_cast<std::uint16_t>( mDataBus >> ( 48 - 8 * ( c.width.maskai & 6u ) ) ) );
-      else if ( Tom::decodes( at ) && ( at & 0x1fffu ) >= 0x800u && !bit( addr, 1 ) )
-      {
-        std::uint32_t const dwrite = static_cast<std::uint32_t>( mDataBus >> ( bit( addr, 2 ) ? 0 : 32 ) );
-        std::uint16_t const first = static_cast<std::uint16_t>( mCon.bigend ? dwrite >> 16 : dwrite );
-        std::uint16_t const second = static_cast<std::uint16_t>( mCon.bigend ? dwrite : dwrite >> 16 );
-        mTom.write( cycle, at, first );
-        mTom.write( cycle, at | 2u, second );
-      }
+      else
+        lineBufferLongWrite( cycle, addr );
     }
   }
 
@@ -2704,13 +2722,32 @@ void MainBus::data( std::uint64_t cycle, Gathered& g, Signals const& s, Control 
     }
     else if ( m.q7a && Tom::decodes( addr ) )
     {
-      // Tom's registers, 16 bits wide: a half each I/O cycle, of a long word from its address on
-      std::uint32_t const k = ( gg.storeSize == 2 ? 2u : 1u ) - gg.storeHalves;
-      std::uint32_t const half = gg.storeSize == 2 ? longHalf( addr, k ) : addr & ~1u;
-      tomWrite( cycle,
-                half,
-                gg.storeSize == 2 ? longLane( half, gg.storeData ) : static_cast<std::uint16_t>( gg.storeData ) );
+      // Tom's registers, 16 bits wide: a half each I/O cycle, of a long word from its address on,
+      // of a phrase from its start, the high one first
+      std::uint32_t const bytes = 1u << gg.storeSize;
+      std::uint32_t const k = ( bytes >= 2 ? bytes / 2 : 1u ) - gg.storeHalves;
+      std::uint32_t half = addr & ~1u;
+      std::uint16_t value = static_cast<std::uint16_t>( gg.storeData );
+      if ( bytes == 4 )
+      {
+        half = longHalf( addr, k );
+        value = longLane( half, gg.storeData );
+      }
+      else if ( bytes == 8 )
+      {
+        half = ( addr & ~7u ) + 2 * k;
+        value = static_cast<std::uint16_t>( v >> ( 48 - 16 * k ) );
+      }
+      tomWrite( cycle, half, value );
       gg.store = --gg.storeHalves != 0;
+    }
+    else if ( m.q7a && Tom::decodes( addr & ~0x8000u ) )
+    {
+      // the 32 bit window onto the line buffers, as the blitter's writes there: a long word each I/O
+      // cycle, the data bus's lanes the memory controller's address names
+      lineBufferLongWrite( cycle, ( mAddr.bus & ~7u ) + ( c.width.maskai & 6u ) );
+      gg.storeHalves = gg.storeHalves > 2 ? gg.storeHalves - 2 : 0;
+      gg.store = gg.storeHalves != 0;
     }
     else if ( m.q8a && ( addr & 0xff0000u ) == 0xf10000u )
     {
@@ -2760,6 +2797,15 @@ void MainBus::data( std::uint64_t cycle, Gathered& g, Signals const& s, Control 
           break;
         }
     }
+  }
+  if ( takenStore )
+  {
+    gg.store = true;
+    gg.storeAddress = takenStore->address;
+    gg.storeSize = takenStore->size;
+    gg.storeData = takenStore->data;
+    gg.storeHi = takenStore->hi;
+    gg.storeHalves = takenStore->halves;
   }
   if ( s.gw[GPU].ddatld )
     gg.hirdata = gg.pendHi;
