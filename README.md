@@ -43,6 +43,16 @@ next to the cartridge, in a `bios` folder there, or one folder up. You can also 
 The window plays the video and the sound as they are made. It runs at the console's speed when the
 machine is fast enough, and slower when it is not.
 
+To record a video with sound, use File > Record video, or start the window with `--record`:
+
+```sh
+build/release/src/jag_app/jagmcp game.j64 --record game.mp4
+```
+
+The file is written when you choose File > Stop recording or close the window. It needs
+[ffmpeg](https://ffmpeg.org) with libx264. The video plays at the console's speed, even when the
+window ran slower. The window does not write `--frames`, `--wav` or `--log`. `jagmcp-cli` does.
+
 The keyboard is the pad in port 1:
 
 | Key | Pad |

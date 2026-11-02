@@ -99,6 +99,12 @@ public:
     return mRunning;
   }
 
+  // A record (video.record_start) is running, started by the window or by a request.
+  [[nodiscard]] bool recording() const
+  {
+    return mRecording;
+  }
+
   // The cycle the program has reached.
   [[nodiscard]] std::uint64_t cycles() const
   {
@@ -148,6 +154,7 @@ private:
   std::atomic<bool> mPaused{};
   std::atomic<bool> mLoaded{};
   std::atomic<bool> mRunning{};
+  std::atomic<bool> mRecording{};
   std::atomic<std::uint64_t> mCycles{};
   std::atomic<double> mSpeed{};
 

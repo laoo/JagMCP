@@ -169,6 +169,7 @@ void EmulationThread::publishState()
   mLoaded = machine != nullptr;
   mRunning = mSession.running();
   mPaused = mSession.paused();
+  mRecording = mSession.recording();
   mCycles = machine ? machine->now() : 0;
   std::string stop;
   if ( auto const& at = mSession.lastStop() )

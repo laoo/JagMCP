@@ -114,6 +114,13 @@ constexpr KeyButton KEY_BUTTONS[] = {
   { SDL_SCANCODE_EQUALS, 20 }, { SDL_SCANCODE_KP_PLUS, 20 },
 };
 
+// The message of a control protocol's error answer
+std::string errorMessage( control::Json const& answer )
+{
+  auto const error = answer.find( "error" );
+  return error != answer.end() ? error->value( "message", std::string{ "unknown error" } ) : "unknown error";
+}
+
 } // namespace
 
 std::expected<std::unique_ptr<Application>, std::string> Application::create()
@@ -264,8 +271,53 @@ void Application::load( std::vector<std::string> const& args )
     return;
   }
   mLastError.clear();
+  // the session writes no runner outputs: the window runs without an end to write them at
+  if ( !options.framesDir.empty() || !options.wav.empty() || !options.log.empty() )
+  {
+    mLastError = "--frames, --wav and --log are not written in the window: use jagmcp-cli for them, "
+                 "or --record FILE.mp4 for a video";
+    SDL_Log( "%s", mLastError.c_str() );
+  }
   mPaused = false;
   mEmulation->setPaused( false );
+}
+
+void Application::startRecord( std::string const& path )
+{
+  control::Json const answer =
+      mEmulation->handle( { { "id", 0 }, { "method", "video.record_start" }, { "params", { { "path", path } } } } );
+  if ( !answer.value( "ok", false ) )
+  {
+    mLastError = "Cannot record " + path + ": " + errorMessage( answer );
+    SDL_Log( "%s", mLastError.c_str() );
+    return;
+  }
+  mRecordPath = path;
+  mRecorded.clear();
+  SDL_Log( "recording to %s", path.c_str() );
+}
+
+void Application::stopRecord()
+{
+  SDL_Log( "writing the record" );
+  control::Json const answer = mEmulation->handle( { { "id", 0 }, { "method", "video.record_stop" } } );
+  mRecordPath.clear();
+  if ( !answer.value( "ok", false ) )
+  {
+    mLastError = "The record failed: " + errorMessage( answer );
+    SDL_Log( "%s", mLastError.c_str() );
+    return;
+  }
+  control::Json const& result = answer.at( "result" );
+  char text[64];
+  std::snprintf( text,
+                 sizeof text,
+                 ", %.1f s, %d x %d",
+                 result.value( "seconds", 0.0 ),
+                 result.value( "width", 0 ),
+                 result.value( "height", 0 ) );
+  mRecorded = result.value( "path", std::string{} ) + text;
+  SDL_Log( "wrote %s", mRecorded.c_str() );
 }
 
 std::string Application::biosFor( std::filesystem::path const& cartridge )
@@ -356,19 +408,48 @@ void Application::chooseBios()
       false );
 }
 
+void Application::chooseRecord()
+{
+  static constexpr SDL_DialogFileFilter FILTERS[] = { { .name = "Video (MP4, MKV, MOV)", .pattern = "mp4;mkv;mov" } };
+  SDL_ShowSaveFileDialog(
+      []( void* self, char const* const* files, int /*filter*/ )
+      {
+        auto* const application = static_cast<Application*>( self );
+        if ( files != nullptr && files[0] != nullptr )
+        {
+          std::scoped_lock const lock{ application->mChosenMutex };
+          application->mChosenRecord = files[0];
+        }
+      },
+      this,
+      mWindow,
+      FILTERS,
+      1,
+      nullptr );
+}
+
 void Application::takeChosen()
 {
   std::optional<std::string> chosen;
   std::optional<std::string> bios;
+  std::optional<std::string> record;
   {
     std::scoped_lock const lock{ mChosenMutex };
     chosen.swap( mChosen );
     bios.swap( mChosenBios );
+    record.swap( mChosenRecord );
   }
   if ( bios )
     setBios( *bios, true );
   if ( chosen )
     load( { *chosen } );
+  if ( record )
+  {
+    // the extension chooses the container
+    if ( std::filesystem::path{ *record }.extension().empty() )
+      *record += ".mp4";
+    startRecord( *record );
+  }
 }
 
 void Application::serve( std::uint16_t linePort, std::uint16_t mcpPort )
@@ -424,6 +505,8 @@ void Application::run()
     ImGui::Render();
     renderFrame();
   }
+  if ( mEmulation->recording() )
+    stopRecord();
 }
 
 void Application::updateEmulation()
@@ -436,6 +519,8 @@ void Application::updateEmulation()
     SDL_SetWindowTitle( mWindow, title.c_str() );
   }
   mPaused = mEmulation->paused(); // a request or a debugger's stop may have paused it
+  if ( !mEmulation->recording() )
+    mRecordPath.clear(); // a request may have stopped the record
   if ( !mEmulation->takePicture( mPicturesShown, mPicture ) )
     return;
   mPictureChanged = true;
@@ -491,6 +576,16 @@ void Application::drawMenuBar()
       openFile();
     if ( ImGui::MenuItem( "Choose BIOS..." ) )
       chooseBios();
+    ImGui::Separator();
+    if ( mEmulation->recording() )
+    {
+      if ( ImGui::MenuItem( "Stop recording" ) )
+        stopRecord();
+    }
+    else if ( ImGui::MenuItem( "Record video...", nullptr, false, mEmulation->loaded() ) )
+    {
+      chooseRecord();
+    }
     ImGui::Separator();
     if ( ImGui::MenuItem( "Quit" ) )
       mQuit = true;
@@ -601,6 +696,12 @@ void Application::drawStatusWindow()
       ImGui::Text( "Sound: %d Hz, %.0f ms queued", mAudio->rate(), mAudio->queuedSeconds() * 1000.0 );
     else
       ImGui::TextUnformatted( "Sound: no device" );
+    if ( mEmulation->recording() )
+      ImGui::TextColored( ImVec4{ 1.0F, 0.4F, 0.4F, 1.0F },
+                          "Recording: %s",
+                          mRecordPath.empty() ? "started by a request" : mRecordPath.c_str() );
+    else if ( !mRecorded.empty() )
+      ImGui::Text( "Recorded: %s", mRecorded.c_str() );
     if ( !mLastError.empty() )
     {
       ImGui::Separator();

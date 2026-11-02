@@ -6,6 +6,7 @@
 //
 //   --server tcp:PORT               serve the control protocol as JSON lines on 127.0.0.1:PORT
 //   --mcp-http PORT                 serve it as MCP at http://127.0.0.1:PORT/mcp
+//   --record FILE                   record the picture and the sound to FILE until the window closes
 //
 // The program runs without a limit: --cycles is not heeded, nor are the runner's outputs. The
 // servers drive the program on screen (docs/spec/control-protocol.md).
@@ -43,10 +44,16 @@ void printHelp()
                "  --server tcp:PORT   Serve the control protocol as JSON lines on 127.0.0.1:PORT.\n"
                "  --mcp-http PORT     Serve the control protocol as MCP on http://127.0.0.1:PORT/mcp.\n"
                "\n"
+               "Recording:\n"
+               "  --record FILE       Record the picture and the sound to FILE (.mp4, .mkv or .mov).\n"
+               "                      The file is written when the window closes. Needs ffmpeg.\n"
+               "                      File > Record video does the same from the menu.\n"
+               "\n"
                "The BIOS is found next to the cartridge, in a bios folder there, or one folder up.\n"
                "You can also choose it with File > Choose BIOS.\n"
                "\n"
-               "Program options (--cycles and the output options are ignored in the window):\n"
+               "Program options (--cycles, --log, --frames and --wav are ignored in the window;\n"
+               "use jagmcp-cli for them, or --record for a video):\n"
                "%s"
                "\n"
                "Keys (pad 1): arrows = joypad, Z X C = A B C, Tab = Option, Return = Pause,\n"
@@ -74,10 +81,11 @@ int run( int argc, char** argv )
       return 0;
     }
   }
-  // the servers' flags, wherever they are; the rest is the program
+  // the window's own flags, wherever they are; the rest is the program
   std::vector<std::string> args;
   std::uint16_t linePort = 0;
   std::uint16_t mcpPort = 0;
+  std::string record;
   for ( int i = 1; i < argc; ++i )
   {
     std::string const arg = argv[i];
@@ -85,6 +93,8 @@ int run( int argc, char** argv )
       linePort = static_cast<std::uint16_t>( std::stoul( std::string{ argv[++i] }.substr( 4 ) ) );
     else if ( arg == "--mcp-http" && i + 1 < argc )
       mcpPort = static_cast<std::uint16_t>( std::stoul( argv[++i] ) );
+    else if ( arg == "--record" && i + 1 < argc )
+      record = argv[++i];
     else
       args.push_back( arg );
   }
@@ -97,6 +107,8 @@ int run( int argc, char** argv )
   ( *application )->serve( linePort, mcpPort );
   if ( !args.empty() )
     ( *application )->load( args );
+  if ( !record.empty() )
+    ( *application )->startRecord( record );
   ( *application )->run();
   return 0;
 }

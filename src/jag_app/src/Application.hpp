@@ -51,7 +51,12 @@ public:
   // Throws std::runtime_error when a port cannot be listened on.
   void serve( std::uint16_t linePort, std::uint16_t mcpPort );
 
-  // Runs until the window is closed or Quit is chosen.
+  // Records the picture and the sound into `path` (.mp4, .mkv, .mov) from now on, through ffmpeg,
+  // as video.record_start does. The record is written when it is stopped or the window closes. A
+  // failure is shown in the status window and logged.
+  void startRecord( std::string const& path );
+
+  // Runs until the window is closed or Quit is chosen. A record still running is then written.
   void run();
 
 private:
@@ -79,10 +84,14 @@ private:
   bool setBios( std::string const& path, bool keep );
   void keepSetting( std::string const& key, control::Json value );
 
-  // File > Open and File > Choose BIOS: native dialogs that answer on a thread of their own; the
-  // file chosen is taken on a later frame (takeChosen).
+  // Ends the record, which a request may have started, and writes its file.
+  void stopRecord();
+
+  // File > Open, File > Choose BIOS and File > Record video: native dialogs that answer on a thread
+  // of their own; the file chosen is taken on a later frame (takeChosen).
   void openFile();
   void chooseBios();
+  void chooseRecord();
   void takeChosen();
 
   // The keyboard's keys as the pad in port 1, handed on as they change.
@@ -104,6 +113,8 @@ private:
   std::string mImguiIniPath;
   std::string mProgram; // the file loaded, as given; by the window or by a request
   std::string mLastError;
+  std::string mRecordPath; // the record the window started; empty for none, or for a request's
+  std::string mRecorded;   // what the last record the window stopped holds, for a person
   bool mQuit{};
   bool mPaused{};
   bool mShowStatus{ true };
@@ -112,8 +123,9 @@ private:
   std::string mSettingsPath; // settings.json in the preferences' directory; empty if there is none
   control::Json mSettings = control::Json::object();
   std::mutex mChosenMutex;
-  std::optional<std::string> mChosen;     // under mChosenMutex
-  std::optional<std::string> mChosenBios; // under mChosenMutex
+  std::optional<std::string> mChosen;       // under mChosenMutex
+  std::optional<std::string> mChosenBios;   // under mChosenMutex
+  std::optional<std::string> mChosenRecord; // under mChosenMutex
 };
 
 } // namespace jag::app

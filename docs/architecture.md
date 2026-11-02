@@ -492,6 +492,14 @@ games do in PGMEmu. The BIOS is chosen in this order:
 
 Without a BIOS the start fails, and the status window says so.
 
+**Recording.** File > Record video and `--record FILE` start a record through the same
+`video.record_start` method that a client calls
+([0031](decisions/0031-video-is-recorded-by-ffmpeg.md)). File > Stop recording ends it with
+`video.record_stop`. A record that is still running when the window closes is written then, even
+one a client started. The runner's outputs (`--frames`, `--wav`, `--log`) are not written: the
+window runs without an end, and the session owns the frame and sound sinks. The window says so
+when it gets them.
+
 The status window shows the BIOS that the program on screen boots with. A client's `emu.load` can
 give another one with `--bios`. That one is used for that load only. When the remembered BIOS is a
 different one, the status window shows it on a second line, as the BIOS for cartridges.
