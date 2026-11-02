@@ -69,6 +69,7 @@ stderr with exit status 1. Numbers in answers are decimal: `"pc": 15740928` is 0
 | Load, reset, see where it is | `emu.load {args}`, `emu.reset`, `emu.status` |
 | Run | `emu.run_frames {count, timeout_cycles}`, `emu.run_cycles {count}` (DSP cycles, 26.59 MHz) |
 | Processors | `cpu.get_state {cpu}` and `cpu.disassemble {cpu, address, count}`, `cpu` one of `m68k`, `gpu`, `dsp` (the program's own when left out) |
+| Change registers | `cpu.set_registers {cpu, registers, bank?}`: `registers='{"r1":"0x10000","flags":0}'` (GPU, DSP: r0 to r31 of the bank in use, flags Z C N; no PC) or `'{"d0":1,"a7":"0x8000","pc":"0x4032"}'` (68000); answers the new state. A load or divide already issued still writes its result after |
 | Memory | `memory.read {address, size}`, `memory.write {address, data_hex}`: main RAM, the ROMs (read only), the GPU's RAM at 0xf03000 and the DSP's at 0xf1b000; not registers |
 | Picture | `video.screenshot {path}`: the last frame, a pixel a pixel (the window stretches it to 4:3) |
 | Sound | `audio.capture_start {path}` / `audio.capture_stop` (a WAV at the I2S frame rate) |

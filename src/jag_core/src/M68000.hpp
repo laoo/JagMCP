@@ -57,6 +57,10 @@ public:
     return ( flags & moira::State::STOPPED ) != 0;
   }
 
+  // For a debugger, at an instruction's boundary: the next instruction is the one at `pc`, its
+  // prefetch read from memory without a bus cycle. A STOP waits no longer.
+  void setNextPc( std::uint32_t pc );
+
   // The run ends at `cycle`: no bus cycle starts there or after, nor is traced.
   void setLimit( std::uint64_t cycle )
   {

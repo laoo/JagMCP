@@ -755,6 +755,28 @@ std::optional<Machine::M68kState> Machine::m68kState() const
   return s;
 }
 
+bool Machine::setM68kRegisters( M68kRegisters const& registers )
+{
+  if ( !mM68k || mM68k->waiting() )
+    return false;
+  if ( registers.sr )
+    mM68k->setSR( static_cast<std::uint16_t>( *registers.sr ) );
+  if ( registers.usp )
+    mM68k->setUSP( *registers.usp );
+  if ( registers.isp )
+    mM68k->setISP( *registers.isp );
+  for ( int n = 0; n < 8; ++n )
+  {
+    if ( auto const d = registers.d[static_cast<std::size_t>( n )] )
+      mM68k->setD( n, *d );
+    if ( auto const a = registers.a[static_cast<std::size_t>( n )] )
+      mM68k->setA( n, *a );
+  }
+  if ( registers.pc )
+    mM68k->setNextPc( *registers.pc );
+  return true;
+}
+
 std::optional<std::pair<std::string, std::uint32_t>> Machine::disassemble68k( std::uint32_t address ) const
 {
   if ( !mM68k )

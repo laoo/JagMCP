@@ -27,6 +27,15 @@ void M68000::powerOn()
   reset();
 }
 
+void M68000::setNextPc( std::uint32_t pc )
+{
+  // as an instruction starts in Moira: IRD its first word, IRC the word after
+  reg.pc = reg.pc0 = pc;
+  queue.ird = read16Dasm( pc );
+  queue.irc = read16Dasm( pc + 2 );
+  flags &= ~moira::State::STOPPED;
+}
+
 void M68000::runUntil( std::uint64_t cycle )
 {
   mTarget = cycle;

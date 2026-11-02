@@ -129,6 +129,35 @@
 {"id":133,"method":"memory.read","params":{"address":"0x5000","size":4}}
 {"id":134,"method":"cpu.get_state"}
 {"id":135,"method":"emu.load","params":{"args":["control/m68k_coff.cof","--bios","bios.rom"]}}
+# Registers set: the GPU's at a breakpoint, then its load reads where r1 now points; the 68000's
+# PC moved, and again out of a STOP
+{"id":170,"method":"emu.load","params":{"args":["reference/op_bitmap.o","--gpu"]}}
+{"id":171,"method":"debug.breakpoint.add","params":{"address":"0xf0300e"}}
+{"id":172,"method":"emu.run_cycles","params":{"count":10000}}
+{"id":173,"method":"memory.write","params":{"address":"0x10000","data_hex":"cafef00d"}}
+{"id":174,"method":"cpu.set_registers","params":{"registers":{"r1":"0x10000","flags":5}}}
+{"id":175,"method":"debug.singlestep"}
+{"id":176,"method":"debug.singlestep"}
+{"id":177,"method":"cpu.get_state"}
+{"id":178,"method":"cpu.set_registers","params":{"registers":{"r31":7},"bank":0}}
+{"id":179,"method":"cpu.set_registers","params":{"registers":{"pc":0}}}
+{"id":180,"method":"cpu.set_registers","params":{"registers":{"r32":0,"flags":8}}}
+{"id":181,"method":"cpu.set_registers","params":{"registers":{"r1":0},"bank":2}}
+{"id":182,"method":"cpu.set_registers","params":{"registers":{}}}
+{"id":183,"method":"cpu.set_registers","params":{"cpu":"m68k","registers":{"d0":0}}}
+{"id":184,"method":"emu.load","params":{"args":["reference/m68k_gpu_start.o","--m68k"]}}
+{"id":185,"method":"debug.breakpoint.add","params":{"address":"0x4030"}}
+{"id":186,"method":"emu.run_cycles","params":{"count":10000}}
+{"id":187,"method":"debug.breakpoint.remove","params":{"address":"0x4030"}}
+{"id":188,"method":"cpu.set_registers","params":{"registers":{"pc":"0x4032","d1":"0x12345678","sr":"0x2700"}}}
+{"id":189,"method":"debug.singlestep"}
+{"id":190,"method":"emu.run_cycles","params":{"count":2000}}
+{"id":191,"method":"cpu.set_registers","params":{"registers":{"pc":"0x400a","d0":2}}}
+{"id":192,"method":"debug.singlestep"}
+{"id":193,"method":"debug.singlestep"}
+{"id":194,"method":"cpu.set_registers","params":{"registers":{"pc":"0x4001"}}}
+{"id":195,"method":"cpu.set_registers","params":{"registers":{"r1":0}}}
+{"id":196,"method":"cpu.set_registers","params":{"registers":{"d0":0},"bank":0}}
 # Malformed requests and errors, on a DSP program
 {"id":80,"method":"emu.load","params":{"args":["reference/abs.o"]}}
 {"id":29,"method":"memory.read","params":{"address":"0xe00000","size":2}}

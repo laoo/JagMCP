@@ -118,6 +118,22 @@ public:
 
   std::optional<M68kState> m68kState() const;
 
+  // For a debugger, between runs, with --m68k: the registers given, as the next instruction finds
+  // them. SR is set first, as it may exchange the stack pointers; A7 is the one in use. PC starts
+  // the instruction there, read without a bus cycle, and ends a STOP. Nothing is set, and the answer
+  // is false, while a bus cycle waits for the bus (busWait): the 68000 is inside an instruction.
+  struct M68kRegisters
+  {
+    std::array<std::optional<std::uint32_t>, 8> d{};
+    std::array<std::optional<std::uint32_t>, 8> a{};
+    std::optional<std::uint32_t> pc;
+    std::optional<std::uint32_t> sr;
+    std::optional<std::uint32_t> usp;
+    std::optional<std::uint32_t> isp;
+  };
+
+  bool setM68kRegisters( M68kRegisters const& registers );
+
   // The 68000's instruction at `address` as text, and its length in bytes, with --m68k.
   std::optional<std::pair<std::string, std::uint32_t>> disassemble68k( std::uint32_t address ) const;
 

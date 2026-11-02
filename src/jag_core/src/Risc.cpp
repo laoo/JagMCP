@@ -456,6 +456,25 @@ std::uint32_t Risc::reg( int index ) const
   return mRegs[static_cast<std::size_t>( index & 63 )];
 }
 
+void Risc::setReg( int index, std::uint32_t value )
+{
+  loopDirty();
+  auto const r = static_cast<std::size_t>( index & 63 );
+  // a write planned for a later cycle keeps its value from that cycle; until then the register
+  // reads as the one before it
+  mOld[r] = value;
+  if ( mReady[r] <= mCycle )
+    mRegs[r] = value;
+}
+
+void Risc::setAluFlags( std::uint32_t flags )
+{
+  loopDirty();
+  // the flags due by now committed, those planned for later left to come
+  static_cast<void>( flagsAt( mCycle ) );
+  mFlags = flags & 7;
+}
+
 void Risc::debugStop( DebugStop stop )
 {
   stop.cpu = mProbe->cpu();

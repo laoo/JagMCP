@@ -228,6 +228,7 @@ digits after `0x` or `$`: `"0xf03000"`, `"$f03000"`. Answers always give integer
 | `encoder_missing` | ffmpeg cannot be run. The message says why. |
 | `record_failed` | The record's files cannot be written, no frame was completed during it, or ffmpeg failed. The message says which, with the end of ffmpeg's log. |
 | `invalid_input` | An `input.` method got a button name it does not know. |
+| `cpu_busy` | `cpu.set_registers` on the 68000 while it is inside an instruction: a bus cycle waits for the bus. |
 
 ## 5. Methods
 
@@ -251,6 +252,7 @@ video are one second.
 | [`input.press`](#inputpress) | Press buttons for some frames, and run. |
 | [`memory.read`, `memory.write`](#memoryread) | Read and write memory without a bus cycle. |
 | [`cpu.get_state`](#cpuget_state) | A processor's registers. |
+| [`cpu.set_registers`](#cpuset_registers) | Set a processor's registers. |
 | [`cpu.disassemble`](#cpudisassemble) | Disassemble memory. |
 | [`video.screenshot`](#videoscreenshot) | The last frame, as a PNG. |
 | [`video.record_start`, `video.record_stop`](#videorecord_start) | Record the picture and the sound to a video file. |
@@ -621,7 +623,7 @@ For the GPU or the DSP:
 
 ```json
 {"id":6,"ok":true,"result":{"pc":15741038,"flags":321404928,"control":321396737,
-  "registers":[0,0,"..."],"started":true,"cycle":20000,"disasm":"loadw (r6),r8"}}
+  "registers":[0,0,"..."],"bank":0,"started":true,"cycle":20000,"disasm":"loadw (r6),r8"}}
 ```
 
 | Field | Meaning |
@@ -629,6 +631,7 @@ For the GPU or the DSP:
 | `pc` | The program counter as the core holds it: the instruction that is issuing or about to issue. |
 | `flags`, `control` | G_FLAGS/D_FLAGS and G_CTRL/D_CTRL, as a read of them gives them. |
 | `registers` | The 64 registers: bank 0, then bank 1. |
+| `bank` | The bank that the instructions name: 1 when REGPAGE selects bank 1 and IMASK does not override it. |
 | `started` | True when GO has been set, by the program's start or by another processor's write. |
 | `cycle` | The cycle that the processor has reached. |
 | `disasm` | The instruction at `pc`. |
@@ -645,6 +648,43 @@ For the 68000:
 | `disasm` | The instruction at `pc`. |
 
 Errors: `not_loaded`, `no_cpu`, `bad_request`.
+
+### `cpu.set_registers`
+
+Sets registers of a processor between runs. Answers the processor's state after the write, as
+`cpu.get_state` gives it.
+
+| Param | Meaning |
+|---|---|
+| `registers` | An object: register names and their values. A value is an integer, or a string such as `"0x10"`. |
+| `cpu` | `m68k`, `gpu` or `dsp`. Default: the program's own processor. |
+| `bank` | GPU and DSP only: the bank that `r0` to `r31` name, 0 or 1. Default: the bank in use (`bank` of `cpu.get_state`). |
+
+```json
+{"id":7,"method":"cpu.set_registers","params":{"cpu":"gpu","registers":{"r1":"0x10000","flags":0}}}
+{"id":8,"method":"cpu.set_registers","params":{"cpu":"m68k","registers":{"d0":1,"pc":"0x4032"}}}
+```
+
+The registers of the GPU and the DSP:
+
+- `r0` to `r31` of the bank, and `flags`: Z, C and N, bits 0 to 2 of FLAGS (0 to 7).
+- The PC cannot be set. The pipeline already holds the instructions after it.
+- The new value is there from now on. An instruction that has already issued, but has not
+  written its result yet, still writes it after. Examples: a load, a divide, the second word of
+  a MOVEI.
+
+The registers of the 68000:
+
+- `d0` to `d7`, `a0` to `a7`, `pc`, `sr`, `usp` and `isp`. `a7` is the stack pointer in use.
+- `sr` is set first, because it can exchange the stack pointers.
+- `pc` must be even. The next instruction starts there. Its first words are read from memory
+  without a bus cycle. A STOP ends.
+- Between runs the 68000 is between two instructions, unless a bus cycle waits for the bus
+  (`emu.status` shows it as `bus_wait`). Then nothing is set, and the answer is `cpu_busy`.
+
+All the names and values are checked first. So all the registers are set, or none.
+
+Errors: `not_loaded`, `no_cpu`, `cpu_busy`, `bad_request`.
 
 ### `cpu.disassemble`
 

@@ -149,6 +149,18 @@ public:
   std::uint32_t flagsRegister();
   std::uint32_t controlRegister();
 
+  // The bank the instructions name: 1 when REGPAGE selects bank 1 and IMASK does not override it.
+  unsigned bank() const
+  {
+    return mBank / 32;
+  }
+
+  // For a debugger, between runs: register `index` of the 64 holds `value` from now on, and the
+  // flags Z, C and N (FLAGS bits 0 to 2) `flags`. A result that an instruction already issued has
+  // not written yet still writes after, as through the register file's port.
+  void setReg( int index, std::uint32_t value );
+  void setAluFlags( std::uint32_t flags );
+
   bool holdsLocal( std::uint32_t address ) const
   {
     return address - mRamBase < mRamSize;

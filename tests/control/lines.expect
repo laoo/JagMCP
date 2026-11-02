@@ -6,7 +6,7 @@
 {"id":5,"ok":true,"result":{"reason":"completed","cycles_executed":20000,"frames_executed":7,"running":true}}
 {"id":6,"ok":true,"result":{"version":"devel","program":"reference/op_bitmap.o","cpu":"gpu","cycles":20000,"seconds":0.0007520521623379798,"frame":7,"running":true,"paused":false,"recording":false,"diagnostics":0}}
 {"id":7,"ok":true,"result":{"width":85,"height":7,"frame":7,"png_base64":"iVBORw0KGgoAAAANSUhEUgAAAFUAAAAHCAIAAAD20ZbxAAAHC0lEQVR4AQEAB//4ADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSADQSAAAAAAA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgAANBIANBIANBIANBIANBIANBIANBIANBIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANBIANBIANBIAADQSADQSADQSADQSADQSADQSADQSADQSAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQSADQSADQSAAA0EgA0EgA0EgA0EgA0EgA0EgA0EgA0EgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0EgA0EgA0EgAANBIANBIANBIANBIANBIANBIANBIANBIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANBIANBIANBIAADQSADQSADQSADQSADQSADQSADQSADQSAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQSADQSADQSABpgPUFs6sDEAAAAAElFTkSuQmCC"}}
-{"id":8,"ok":true,"result":{"pc":15741038,"flags":321404928,"control":321396737,"registers":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15741148,0,2623169,15728680,4096,15728644,0,1063,931,0,0,0,0,131392,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"started":true,"cycle":20000,"disasm":"loadw (r6),r8"}}
+{"id":8,"ok":true,"result":{"pc":15741038,"flags":321404928,"control":321396737,"registers":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15741148,0,2623169,15728680,4096,15728644,0,1063,931,0,0,0,0,131392,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"bank":1,"started":true,"cycle":20000,"disasm":"loadw (r6),r8"}}
 {"id":9,"ok":true,"result":[{"address":15740928,"length":6,"opcode_hex":"980e00000001","text":"movei #$00010000,r14"},{"address":15740934,"length":6,"opcode_hex":"9801307800f0","text":"movei #$00f03078,r1"},{"address":15740940,"length":2,"opcode_hex":"8d02","text":"moveq #8,r2"},{"address":15740942,"length":2,"opcode_hex":"a423","text":"load (r1),r3"},{"address":15740944,"length":2,"opcode_hex":"0881","text":"addq #4,r1"},{"address":15740946,"length":2,"opcode_hex":"bdc3","text":"store r3,(r14)"},{"address":15740948,"length":2,"opcode_hex":"088e","text":"addq #4,r14"},{"address":15740950,"length":2,"opcode_hex":"1822","text":"subq #1,r2"}]}
 {"id":10,"ok":false,"error":{"code":"no_cpu","message":"This run has no 68000"}}
 {"id":11,"ok":true,"result":{"reason":"completed","cycles_executed":1000,"frames_executed":1,"running":true}}
@@ -16,7 +16,7 @@
 {"id":15,"ok":true,"result":{"pc":14680072,"d":[0,0,0,0,0,0,0,0],"a":[0,0,0,0,0,0,0,16384],"sr":9984,"usp":0,"isp":16384,"stopped":false,"halted":false,"disasm":"move.w  #$1861, $f00000.l"}}
 {"id":16,"ok":true,"result":{"reason":"completed","cycles_executed":10000,"frames_executed":0,"running":true}}
 {"id":17,"ok":true,"result":{"pc":16448,"d":[65535,0,0,0,0,0,0,0],"a":[16484,15740964,0,0,0,0,0,16384],"sr":9984,"usp":0,"isp":16384,"stopped":true,"halted":false,"disasm":"sub.b   D1, D4"}}
-{"id":18,"ok":true,"result":{"pc":15740962,"flags":548995073,"control":549003264,"registers":[0,65536,10,0,15737108,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"started":true,"cycle":2005,"disasm":"nop"}}
+{"id":18,"ok":true,"result":{"pc":15740962,"flags":548995073,"control":549003264,"registers":[0,65536,10,0,15737108,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"bank":0,"started":true,"cycle":2005,"disasm":"nop"}}
 {"id":19,"ok":true,"result":[{"address":15740928,"length":6,"opcode_hex":"980100000001","text":"movei #$00010000,r1"},{"address":15740934,"length":2,"opcode_hex":"8c02","text":"moveq #0,r2"},{"address":15740936,"length":2,"opcode_hex":"8d43","text":"moveq #10,r3"},{"address":15740938,"length":2,"opcode_hex":"0822","text":"addq #1,r2"},{"address":15740940,"length":2,"opcode_hex":"bc22","text":"store r2,(r1)"},{"address":15740942,"length":2,"opcode_hex":"1823","text":"subq #1,r3"}]}
 {"id":20,"ok":true,"result":{"address":65536,"data_hex":"0000000a20392000"}}
 {"id":21,"ok":true,"result":{"address":65536,"size":4}}
@@ -27,11 +27,11 @@
 {"id":26,"ok":false,"error":{"code":"capture_not_running","message":"No capture is running"}}
 {"id":160,"ok":false,"error":{"code":"recording_not_running","message":"No record is running"}}
 {"id":27,"ok":true,"result":{"reason":"completed","cycles_executed":2000000,"frames_executed":0,"running":true}}
-{"id":28,"ok":true,"result":{"pc":15839296,"flags":853016582,"control":853024769,"registers":[524288,1048576,0,0,0,3840,56,0,0,532676609,6,30,7,15839328,15839342,1948816,1,15,0,512,1536,512,1534,6641,4565,4294965888,4294964992,225804,225312,1726464,1572864,15839274,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"started":true,"cycle":2000001,"disasm":"shrq #8,r1"}}
+{"id":28,"ok":true,"result":{"pc":15839296,"flags":853016582,"control":853024769,"registers":[524288,1048576,0,0,0,3840,56,0,0,532676609,6,30,7,15839328,15839342,1948816,1,15,0,512,1536,512,1534,6641,4565,4294965888,4294964992,225804,225312,1726464,1572864,15839274,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"bank":0,"started":true,"cycle":2000001,"disasm":"shrq #8,r1"}}
 {"id":40,"ok":true,"result":{"program":"reference/op_bitmap.o","cpu":"gpu"}}
 {"id":41,"ok":true,"result":{"cpu":"gpu","breakpoints":[15740942]}}
 {"id":42,"ok":true,"result":{"reason":"breakpoint","cycles_executed":10,"frames_executed":0,"running":true,"stop":{"cpu":"gpu","pc":15740942,"cycle":10,"exact":true}}}
-{"id":43,"ok":true,"result":{"pc":15740942,"flags":11091968,"control":11083777,"registers":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15741048,8,0,0,0,0,0,0,0,0,0,0,0,65536,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"started":true,"cycle":10,"disasm":"load (r1),r3"}}
+{"id":43,"ok":true,"result":{"pc":15740942,"flags":11091968,"control":11083777,"registers":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15741048,8,0,0,0,0,0,0,0,0,0,0,0,65536,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"bank":1,"started":true,"cycle":10,"disasm":"load (r1),r3"}}
 {"id":44,"ok":true,"result":{"cpu":"gpu","watchpoints":[{"address":65536,"size":4,"access":"write"}]}}
 {"id":45,"ok":true,"result":{"reason":"watchpoint","cycles_executed":4,"frames_executed":0,"running":true,"stop":{"cpu":"gpu","pc":15740946,"cycle":13,"exact":true,"address":65536,"access":"write","bytes":4,"value":33554464}}}
 {"id":46,"ok":true,"result":[{"pc":15740942,"cycle":10,"text":"load (r1),r3"},{"pc":15740944,"cycle":11,"text":"addq #4,r1"},{"pc":15740946,"cycle":12,"text":"store r3,(r14)"},{"pc":15740948,"cycle":13,"text":"addq #4,r14"}]}
@@ -93,7 +93,7 @@
 {"id":98,"ok":true,"result":{"program":"reference/op_bitmap.o","cpu":"gpu"}}
 {"id":99,"ok":true,"result":{"address":15740928,"size":12}}
 {"id":100,"ok":true,"result":{"reason":"completed","cycles_executed":200,"frames_executed":0,"running":true}}
-{"id":101,"ok":true,"result":{"pc":15740932,"flags":809058304,"control":809050113,"registers":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15728866,6241,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"started":true,"cycle":200,"disasm":"add r7,r16"}}
+{"id":101,"ok":true,"result":{"pc":15740932,"flags":809058304,"control":809050113,"registers":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15728866,6241,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"bank":1,"started":true,"cycle":200,"disasm":"add r7,r16"}}
 {"id":102,"ok":true,"result":[{"kind":"undriven_read","cpu":"gpu","pc":15740934,"text":"loadw (r1),r2","address":15728866,"register":"INT2","value":6241,"cycle":36,"count":21}]}
 {"id":103,"ok":true,"result":{"program":"reference/abs.o","cpu":"dsp"}}
 {"id":104,"ok":true,"result":{"address":15839232,"size":12}}
@@ -115,6 +115,33 @@
 {"id":133,"ok":true,"result":{"address":20480,"data_hex":"12345678"}}
 {"id":134,"ok":true,"result":{"pc":16400,"d":[305419896,0,0,0,0,0,0,0],"a":[15732128,15734176,0,0,0,0,0,16384],"sr":9984,"usp":0,"isp":16384,"stopped":false,"halted":false,"disasm":"bra     $4010"}}
 {"id":135,"ok":false,"error":{"code":"load_failed","message":"--bios with a COFF program: the BIOS does not start it; leave --bios out"}}
+{"id":170,"ok":true,"result":{"program":"reference/op_bitmap.o","cpu":"gpu"}}
+{"id":171,"ok":true,"result":{"cpu":"gpu","breakpoints":[15740942]}}
+{"id":172,"ok":true,"result":{"reason":"breakpoint","cycles_executed":10,"frames_executed":0,"running":true,"stop":{"cpu":"gpu","pc":15740942,"cycle":10,"exact":true}}}
+{"id":173,"ok":true,"result":{"address":65536,"size":4}}
+{"id":174,"ok":true,"result":{"pc":15740942,"flags":11091973,"control":11083777,"registers":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,65536,8,0,0,0,0,0,0,0,0,0,0,0,65536,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"bank":1,"started":true,"cycle":10,"disasm":"load (r1),r3"}}
+{"id":175,"ok":true,"result":{"reason":"step","cycles_executed":1,"frames_executed":0,"running":true,"stop":{"cpu":"gpu","pc":15740944,"cycle":11,"exact":true}}}
+{"id":176,"ok":true,"result":{"reason":"step","cycles_executed":31,"frames_executed":0,"running":true,"stop":{"cpu":"gpu","pc":15740946,"cycle":42,"exact":true}}}
+{"id":177,"ok":true,"result":{"pc":15740946,"flags":19873792,"control":19865601,"registers":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,65540,8,3405705229,0,0,0,0,0,0,0,0,0,0,65536,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"bank":1,"started":true,"cycle":42,"disasm":"store r3,(r14)"}}
+{"id":178,"ok":true,"result":{"pc":15740946,"flags":19873792,"control":19865601,"registers":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,65540,8,3405705229,0,0,0,0,0,0,0,0,0,0,65536,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"bank":1,"started":true,"cycle":42,"disasm":"store r3,(r14)"}}
+{"id":179,"ok":false,"error":{"code":"bad_request","message":"A RISC's PC cannot be set: its pipeline holds the instructions after it"}}
+{"id":180,"ok":false,"error":{"code":"bad_request","message":"Unknown register r32: r0 to r31 and flags"}}
+{"id":181,"ok":false,"error":{"code":"bad_request","message":"Field bank must be 0 or 1"}}
+{"id":182,"ok":false,"error":{"code":"bad_request","message":"Missing or invalid field: registers"}}
+{"id":183,"ok":false,"error":{"code":"no_cpu","message":"This run has no 68000"}}
+{"id":184,"ok":true,"result":{"program":"reference/m68k_gpu_start.o","cpu":"m68k"}}
+{"id":185,"ok":true,"result":{"cpu":"m68k","breakpoints":[16432]}}
+{"id":186,"ok":true,"result":{"reason":"breakpoint","cycles_executed":1840,"frames_executed":0,"running":true,"stop":{"cpu":"m68k","pc":16432,"cycle":2039,"exact":true}}}
+{"id":187,"ok":true,"result":{"cpu":"m68k","breakpoints":[]}}
+{"id":188,"ok":true,"result":{"pc":16434,"d":[65535,305419896,0,0,0,0,0,0],"a":[16484,15740964,0,0,0,0,0,16384],"sr":9984,"usp":0,"isp":16384,"stopped":false,"halted":false,"disasm":"move.l  $f02114.l, $10004.l"}}
+{"id":189,"ok":true,"result":{"reason":"step","cycles_executed":102,"frames_executed":0,"running":true,"stop":{"cpu":"m68k","pc":16444,"cycle":2141,"exact":true}}}
+{"id":190,"ok":true,"result":{"reason":"completed","cycles_executed":2000,"frames_executed":0,"running":true}}
+{"id":191,"ok":true,"result":{"pc":16394,"d":[2,305419896,0,0,0,0,0,0],"a":[16484,15740964,0,0,0,0,0,16384],"sr":9984,"usp":0,"isp":16384,"stopped":false,"halted":false,"disasm":"moveq   #$8, D0"}}
+{"id":192,"ok":true,"result":{"reason":"step","cycles_executed":14,"frames_executed":0,"running":true,"stop":{"cpu":"m68k","pc":16396,"cycle":4155,"exact":true}}}
+{"id":193,"ok":true,"result":{"reason":"step","cycles_executed":54,"frames_executed":0,"running":true,"stop":{"cpu":"m68k","pc":16398,"cycle":4209,"exact":true}}}
+{"id":194,"ok":false,"error":{"code":"bad_request","message":"Register pc must be even"}}
+{"id":195,"ok":false,"error":{"code":"bad_request","message":"Unknown register r1: d0 to d7, a0 to a7, pc, sr, usp and isp"}}
+{"id":196,"ok":false,"error":{"code":"bad_request","message":"Field bank is the GPU's or the DSP's"}}
 {"id":80,"ok":true,"result":{"program":"reference/abs.o","cpu":"dsp"}}
 {"id":29,"ok":false,"error":{"code":"invalid_range","message":"No readable memory at $e00000"}}
 {"id":30,"ok":false,"error":{"code":"invalid_range","message":"No writable memory at $800000"}}
