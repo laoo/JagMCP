@@ -34,7 +34,7 @@ std::optional<std::string> encoderMissing( std::string const& log );
 class Recorder
 {
 public:
-  // A record into `path` from `cycle` on: H.264 in 4:2:0, or lossless H.264 of the RGB pixels; each
+  // A record into `path` from `cycle` on: H.264 in 4:2:0, or lossless H.264 in 4:4:4 of 10 bits; each
   // pixel made a block of 2 by 2 when `crisp`: H.264 keeps a colour for each such block, and keeps
   // its edges sharp where it blurs single pixels.
   static std::expected<std::unique_ptr<Recorder>, std::string>

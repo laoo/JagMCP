@@ -209,13 +209,18 @@ std::optional<std::string> Recorder::startEncoder()
                                                 "-" } );
   // no B-frames: NUT keeps no decoding times, and with frames out of order the MP4 made from it loses one
   if ( mLossless )
-    args.insert( args.end(),
-                 { "-c:v", "libx264rgb", "-preset", "veryfast", "-bf", "0", "-qp", "0", "-pix_fmt", "rgb24" } );
+    args.insert( args.end(), { "-c:v", "libx264", "-preset", "veryfast", "-bf", "0", "-qp", "0" } );
   else
-    args.insert( args.end(),
-                 { "-c:v", "libx264", "-preset", "veryfast", "-bf", "0", "-crf", "18", "-pix_fmt", "yuv420p" } );
+    args.insert( args.end(), { "-c:v", "libx264", "-preset", "veryfast", "-bf", "0", "-crf", "18" } );
+  // YCbCr by BT.709, and the file says so: a player that is not told guesses, QuickTime BT.709 for a
+  // large picture. Lossless in 4:4:4 of 10 bits: every RGB colour comes back exactly. RGB planes
+  // (libx264rgb) QuickTime shows as YCbCr, in wrong colours.
+  args.insert( args.end(), { "-colorspace", "bt709", "-color_range", "tv" } );
+  std::string const convert =
+      std::string{ "scale=out_color_matrix=bt709:out_range=limited:" } +
+      "flags=accurate_rnd+full_chroma_int+bitexact,format=" + ( mLossless ? "yuv444p10le" : "yuv420p" );
   // shown 4:3 (0017): the pixels kept, made blocks of mScale by mScale, and the player told their shape
-  std::string filter = "setdar=4/3";
+  std::string filter = convert + ",setdar=4/3";
   if ( mScale > 1 )
     filter = "scale=iw*" + std::to_string( mScale ) + ":ih*" + std::to_string( mScale ) + ":flags=neighbor," + filter;
   // timed in DSP cycles, the time base every segment shares, so that they join exactly

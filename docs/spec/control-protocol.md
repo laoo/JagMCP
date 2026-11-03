@@ -728,18 +728,23 @@ Errors: `not_loaded`, `screenshot_failed`, `bad_request`.
 ### `video.record_start`
 
 Records the video output and the sound from now on into a video file. ffmpeg encodes it
-([0031](../decisions/0031-video-is-recorded-by-ffmpeg.md)). The file is written by
+([0031](../decisions/0031-video-is-recorded-by-ffmpeg.md),
+[0032](../decisions/0032-video-colours-are-ycbcr-by-bt709.md)). The file is written by
 `video.record_stop`.
 
 | Param | Meaning |
 |---|---|
 | `path` | Where to write the video. Its extension chooses the container: `.mp4`, `.mkv`, `.mov`. |
-| `lossless` | `true`: keep the RGB pixels exactly. Players that read H.264 4:4:4 show it (ffmpeg, VLC, mpv), QuickTime and browsers do not. `false` when left out. |
+| `lossless` | `true`: keep the RGB pixels exactly, in H.264 4:4:4 of 10 bits. QuickTime, ffmpeg, VLC and mpv show it; browsers may not. `false` when left out. |
 | `crisp` | `true`: make each pixel a block of 2 by 2 pixels. `true` when left out. |
 
 Answers `{"path"}`.
 
 - The picture is H.264, the sound AAC at 48 kHz.
+- The colours are YCbCr by BT.709, limited range, and the file says so. ffmpeg gives back a
+  lossless record's exact frames with
+  `-vf scale=in_color_matrix=bt709:in_range=limited:flags=accurate_rnd+full_chroma_int+bitexact,format=rgb24`;
+  without these flags, colours come 1 apart.
 - H.264 keeps colour at half the resolution in each direction, and it blurs single pixels. With
   `crisp` a pixel is a whole block of colour, and the video is much closer to the frames: on a
   cartridge's title, 44 dB against 35 dB without it, for 1.5 times the size.
