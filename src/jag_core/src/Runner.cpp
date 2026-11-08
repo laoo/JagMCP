@@ -74,6 +74,9 @@ std::string_view runOptionsHelp()
          "  --cart FILE         Load a cartridge image at $800000.\n"
          "  --compat            Enable the MiSTer core's compatibility fixes. On with --bios.\n"
          "  --no-compat         Disable them.\n"
+         "  --open-bus          Let a DSP store losing the bus take the open bus, as the\n"
+         "                      netlist does. On without --bios.\n"
+         "  --no-open-bus       Let it keep its data, as the console does.\n"
          "  --step              Step every cycle, without the fast timing. Slow; for checking.\n"
          "  --part N            Run in parts of N DSP cycles, as the window does.\n"
          "  --log FILE          Write a trace of every event to FILE.\n"
@@ -138,6 +141,10 @@ RunOptions parseRunOptions( std::span<std::string const> args )
       o.compat = true;
     else if ( arg == "--no-compat" )
       o.compat = false;
+    else if ( arg == "--open-bus" )
+      o.openBus = true;
+    else if ( arg == "--no-open-bus" )
+      o.openBus = false;
     else if ( arg == "--frames" )
       o.framesDir = value();
     else if ( arg == "--wav" )
