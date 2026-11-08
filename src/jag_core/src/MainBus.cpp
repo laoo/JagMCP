@@ -1804,6 +1804,24 @@ void MainBus::gather( std::uint64_t cycle, Gathered& g )
       mDataBus = ( mDataBus & ~( std::uint64_t{ 0xffff } << shift ) ) | static_cast<std::uint64_t>( v ) << shift;
     }
   }
+  // and of the DSP's space through Jerry's slave, as the 68000's read of it: the word latched as
+  // Tom's I/O cycle to Jerry ends (q8b): the high half of the long word the DSP's local bus served,
+  // its low half latched for the word after
+  if ( m.blitCycle && m.busRead && m.q8b && m.wq == 0 && mDspSlave )
+  {
+    std::uint32_t const addr = ( mAddr.bus & ~7u ) + ( c.width.maskai & 6u );
+    if ( ( addr & 0xff8000u ) == 0xf18000u )
+    {
+      std::uint16_t v = mSlave.latrdata;
+      if ( !bit( addr, 1 ) )
+      {
+        v = static_cast<std::uint16_t>( mSlave.rddata >> 16 );
+        mSlave.latrdata = static_cast<std::uint16_t>( mSlave.rddata );
+      }
+      std::uint32_t const shift = 48 - 8 * ( addr & 6u );
+      mDataBus = ( mDataBus & ~( std::uint64_t{ 0xffff } << shift ) ) | static_cast<std::uint64_t>( v ) << shift;
+    }
+  }
   // a ROM cycle's bytes are latched as it ends (q5c), the lanes of the part of the access it moves
   // (memwidth.v maskai, maskw)
   if ( m.readsi && m.q5c && boardAt( mAddr.bus ) )

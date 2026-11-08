@@ -48,17 +48,20 @@ places they knowingly do not follow the netlist, each with what the FPGA simulat
 - **Its registers are written by the GPU and the 68000.** The 68000's reach them through the GPU's
   slave port, in the cycle the port serves the write
   ([0014](../decisions/0014-three-processors-the-68000-leads.md)); the DSP's are not modelled.
-- **It reads DRAM, the OS ROM, the cartridge, the GPU's space and the rest of Tom's own space, and
-  writes DRAM, the GPU's space, the DSP's and the rest of Tom's own space** (through `gpu_cpu.v`
-  and Jerry's slave, as the 68000 does: the BIOS copies the GPU's code with it, a game the DSP's).
-  Its reads and writes of Tom's registers, the CLUT and the line buffers are a word each I/O
-  cycle, as the 68000's; a read takes the word of Tom's read bus into its lanes, as the GPU's
-  (`blit_read_tom`; a program may use the CLUT as a buffer). An undriven read there gives MEMCON1
-  ([0026](../decisions/0026-undriven-tom-reads-give-memcon1.md)) and is not reported: it has no
-  instruction. Through the 32 bit window onto the line buffers ($F08800 on) a long word writes
-  both its pixels at once (`lbuf.v` `wea12`), as a demo drawing a picture line by line from a GPU
-  object's interrupt does; a read there, a read of the DSP's space, or a cycle at Jerry's other
-  registers, runs on the bus as the netlist runs it but moves no data.
+- **It reads DRAM, the OS ROM, the cartridge, the GPU's space, the DSP's and the rest of Tom's own
+  space, and writes DRAM, the GPU's space, the DSP's and the rest of Tom's own space** (through
+  `gpu_cpu.v` and Jerry's slave, as the 68000 does: the BIOS copies the GPU's code with it, a game
+  the DSP's). Its reads and writes of Tom's registers, the CLUT and the line buffers are a word
+  each I/O cycle, as the 68000's; a read takes the word of Tom's read bus into its lanes, as the
+  GPU's (`blit_read_tom`; a program may use the CLUT as a buffer). An undriven read there gives
+  MEMCON1 ([0026](../decisions/0026-undriven-tom-reads-give-memcon1.md)) and is not reported: it
+  has no instruction. A read of the DSP's space is a word each I/O cycle to Jerry, taken into its
+  lanes as the cycle ends, as the 68000's: the high half of the long word Jerry's slave read, then
+  the low half it latched (`blit_read_dsp`; a program may let the DSP draw into its RAM and the
+  blitter copy it out). Through the 32 bit window onto the line buffers ($F08800 on) a long word
+  writes both its pixels at once (`lbuf.v` `wea12`), as a demo drawing a picture line by line from
+  a GPU object's interrupt does; a read there, or a cycle at Jerry's other registers, runs on the
+  bus as the netlist runs it but moves no data.
 - **`big_pix`** (G_END bit 1) is set, as the boot program and the BIOS leave it; the GPU's writes
   of G_END are not modelled.
 - **`indone`** goes through a delay of a fast clock (`sysclkdly`) in the netlist; it is taken as
