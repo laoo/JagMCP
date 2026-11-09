@@ -45,8 +45,8 @@ Reconnect it (`/mcp`) after a rebuild.
 - A COFF program (`GAME.cof`, homebrew linked at $4000): alone, without `--m68k` or a BIOS; it
   starts as a Skunkboard starts it (decision 0028). `--bios` with it is refused.
 - A cartridge through the BIOS: `--m68k --bios BIOS --cart GAME.j64`, with the MiSTer core's
-  compatibility fixes on (`--no-compat` for the bare netlist; decision 0022), and DSP stores keep
-  their data as on the console (`--open-bus` for the netlist's; decision 0033). The BIOS and games are never
+  compatibility fixes on (`--no-compat` for the bare netlist; decision 0022), and a DSP store that
+  loses the bus does as on the console (`--open-bus` for the netlist's; decision 0033). The BIOS and games are never
   in the repository ([0015](../../../docs/decisions/0015-bios-and-games-checked-outside-the-repository.md));
   the owner keeps them beside it: the BIOS is a 128 KB `jagboot*.rom`, the games `*.j64`.
   Never copy them in, and never commit a screenshot or a capture of one.

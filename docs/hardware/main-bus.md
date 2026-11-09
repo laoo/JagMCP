@@ -15,8 +15,8 @@ signal; these are the places it knowingly does not, each with what the FPGA simu
   (`random_external_0031`), Jerry's data latch takes the bus: the high half pulled up (`$FFFF`), the
   low half what the bus last carried. The core keeps that low half as the last half word Jerry drove
   or received; the bus's other drivers (Tom for its own masters, the 68000) do not update it. The
-  console keeps the store's data instead; with a BIOS the core does too
-  ([0033](../decisions/0033-dsp-stores-keep-their-data-on-the-console.md)).
+  console fails as often, but a long word store writes its high half into both halves; with a BIOS
+  the core does too ([0033](../decisions/0033-dsp-stores-that-lose-the-bus-on-the-console.md)).
 - **Main RAM** is the simulation's: 2 MB in bank 0 at $000000, mirrored up to $3FFFFF. Bank 1
   ($400000) is not fitted: nothing is written there, the blitter and the object processor read
   what Tom's data bus holds ([0012](../decisions/0012-blitter-and-tom-data-bus.md)), and the

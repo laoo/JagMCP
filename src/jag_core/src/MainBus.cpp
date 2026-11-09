@@ -2869,13 +2869,16 @@ void MainBus::data( std::uint64_t cycle, Gathered& g, Signals const& s, Control 
 
   // A store's data is taken into Jerry's data latch (d3) the cycle after it starts (lwdl): from the
   // gateway when Jerry has the bus then, else from the bus, its high half pulled up and its low
-  // half what it last carried (open bus); with setOpenBus off from the gateway always
+  // half what it last carried (open bus). With setOpenBus off, as the console: a long word takes
+  // its high half into both halves; a word or a byte the open bus, as not measured
   Control::Jerry const& jc = c.jerry;
   if ( jc.storePending )
   {
     std::uint32_t data = dg.loadData;
-    if ( !dbg && mOpenBus )
+    if ( !dbg && ( mOpenBus || jc.storeSize != 2 ) )
       data = 0xffff0000u | j.openLow;
+    else if ( !dbg )
+      data = ( data >> 16 ) * 0x00010001u;
     if ( jc.storeSize == 0 )
       data = ( data & 0xff ) * 0x0101u;
     j.storeData = data;

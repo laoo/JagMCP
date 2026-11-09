@@ -28,17 +28,18 @@ struct RunOptions
   std::vector<std::pair<std::uint32_t, std::uint32_t>> memHashes;
   std::string log;
   std::uint64_t logLines = UINT64_MAX;
-  std::uint64_t logFrom = 0;   // the trace's events from this DSP cycle on
-  bool step = false;           // no automatons: the stepped cores alone, the bus worked out every cycle
-  bool gpu = false;            // the program runs on the GPU
-  bool m68k = false;           // the program runs on the 68000, from reset
-  std::string cart;            // the cartridge's ROM, from $800000
-  std::string bios;            // the OS ROM in place of the boot program (with m68k; the program optional)
-  std::optional<bool> compat;  // the MiSTer core's max_compat (decision 0022); left out, on with a BIOS
-  std::optional<bool> openBus; // Jerry's store latch takes the open bus (decision 0033); left out, off with a BIOS
-  std::string framesDir;       // each frame written there as frame_NNNN.ppm
-  std::string wav;             // the I2S output written there, a frame a sample
-  std::uint64_t part = 0;      // DSP cycles a part of the run, as a front end runs it; 0 for one part
+  std::uint64_t logFrom = 0;  // the trace's events from this DSP cycle on
+  bool step = false;          // no automatons: the stepped cores alone, the bus worked out every cycle
+  bool gpu = false;           // the program runs on the GPU
+  bool m68k = false;          // the program runs on the 68000, from reset
+  std::string cart;           // the cartridge's ROM, from $800000
+  std::string bios;           // the OS ROM in place of the boot program (with m68k; the program optional)
+  std::optional<bool> compat; // the MiSTer core's max_compat (decision 0022); left out, on with a BIOS
+  std::optional<bool>
+      openBus;            // Jerry's store latch takes the open bus, off the console's (0033); left out, off with a BIOS
+  std::string framesDir;  // each frame written there as frame_NNNN.ppm
+  std::string wav;        // the I2S output written there, a frame a sample
+  std::uint64_t part = 0; // DSP cycles a part of the run, as a front end runs it; 0 for one part
 
   bool compatible() const
   {

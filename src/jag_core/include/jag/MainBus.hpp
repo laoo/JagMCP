@@ -140,8 +140,8 @@ public:
   void setAutomaton( bool on );
 
   // A DSP store whose grant is withdrawn the cycle after it starts takes the open bus into Jerry's
-  // data latch, as the netlist does; off, it keeps its data, as the console does
-  // (docs/decisions/0033-dsp-stores-keep-their-data-on-the-console.md).
+  // data latch, as the netlist does; off, a long word store takes its high half into both halves,
+  // as the console does (docs/decisions/0033-dsp-stores-that-lose-the-bus-on-the-console.md).
   void setOpenBus( bool on )
   {
     mOpenBus = on;
