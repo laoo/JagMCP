@@ -8,9 +8,9 @@ Jerry takes a store's data into its data latch the cycle after the store starts 
 the DSP's grant is withdrawn in that cycle, the netlist's latch takes the bus instead: the high half
 pulled up (`$FFFF`), the low half what the bus last carried
 ([main-bus.md](../hardware/main-bus.md), `random_external_0031`). The simulation does this often:
-85 references (`random_external`, `random_video`) differ without it. A store after an external read
-that has finished does not take it (of the stores in the references, 1074 of 1494 without such a
-read took the open bus, 0 of 252 with one).
+65 references (`random_external`, `random_video`) differ with `--no-open-bus`. A store after an
+external read that has finished does not take it (of the stores in the references, 1074 of 1494
+without such a read took the open bus, 0 of 252 with one).
 
 Atari documented the bug (Jaguar Developer Technical Notes, JDEV0002, "Jaguar Hardware Bugs &
 Warnings", March 22, 1995, GPU/DSP item 7):
