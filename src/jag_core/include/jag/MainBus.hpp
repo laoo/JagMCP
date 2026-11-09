@@ -139,6 +139,15 @@ public:
   // (docs/decisions/0020-the-bus-replays-its-control.md); off, worked out every cycle.
   void setAutomaton( bool on );
 
+  // A DSP store whose grant is withdrawn the cycle after it starts takes the open bus into Jerry's
+  // data latch, as the netlist does; off, a long word store takes its high half into both halves
+  // and a word or a byte store keeps its data, as the console does
+  // (docs/decisions/0033-dsp-stores-that-lose-the-bus-on-the-console.md).
+  void setOpenBus( bool on )
+  {
+    mOpenBus = on;
+  }
+
   // G_HIDATA, the GPU's gateway's hirdata: the high half of a phrase loaded or to store.
   std::uint32_t hidata() const
   {
@@ -586,6 +595,7 @@ private:
   Eeprom mEeprom;
   std::uint8_t mJoyLatch = 0xff; // u374
   bool mJoyEnable = false;       // joyen
+  bool mOpenBus = true;          // setOpenBus
 
   std::array<std::uint32_t, 2> mPads{};
 

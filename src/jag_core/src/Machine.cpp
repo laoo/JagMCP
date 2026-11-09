@@ -320,6 +320,7 @@ Machine::Machine( RunOptions const& options, TraceSink* trace )
     mBus = std::make_unique<MainBus>( *mRam, Boot::Reset, std::move( rom ), std::move( cart ) );
     noteUndrivenReads();
     mBus->setAutomaton( !options.step );
+    mBus->setOpenBus( options.openBusStores() );
     mBus->tom().setVintFix( options.compatible() );
     mRam->bus = mBus.get();
     if ( !options.framesDir.empty() )
@@ -362,6 +363,7 @@ Machine::Machine( RunOptions const& options, TraceSink* trace )
   mBus = std::make_unique<MainBus>( *mRam, options.gpu ? Boot::Gpu : Boot::Dsp );
   noteUndrivenReads();
   mBus->setAutomaton( !options.step );
+  mBus->setOpenBus( options.openBusStores() );
   mBus->tom().setVintFix( options.compatible() );
   if ( !options.framesDir.empty() )
     mBus->tom().setFrameSink( &Outputs::frame, mOutputs.get() );

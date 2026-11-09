@@ -3,7 +3,8 @@
 //
 //   jagmcp-cli <file.o> [--cycles N] [--pc A] [--flags V] [--mem A:L] [--raw F] [--load F@A]
 //              [--poke A=V] [--log FILE] [--log-lines N] [--log-from N] [--gpu] [--m68k] [--cart F]
-//              [--bios F] [--compat|--no-compat] [--step] [--frames DIR] [--wav FILE] [--part N]
+//              [--bios F] [--compat|--no-compat] [--open-bus|--no-open-bus] [--step] [--frames DIR]
+//              [--wav FILE] [--part N]
 //   jagmcp-cli --check <dir>/<name> [options]  compare with <name>.trace and <name>.state; 0 when equal
 //   jagmcp-cli --check-all <dir> [options]     one line per reference, and a count
 //   jagmcp-cli --server [tcp:PORT] [program]   the control protocol (docs/spec/control-protocol.md)

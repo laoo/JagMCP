@@ -73,6 +73,7 @@ Documentation is updated in the **same commit** as the change that invalidated i
 - [0030: A single step runs the whole machine; no processor is held](decisions/0030-a-step-runs-the-whole-machine.md)
 - [0031: Video is recorded by ffmpeg, run beside the emulator](decisions/0031-video-is-recorded-by-ffmpeg.md)
 - [0032: A record's colours are YCbCr by BT.709, and the file says so](decisions/0032-video-colours-are-ycbcr-by-bt709.md)
+- [0033: A DSP store that loses the bus writes its high half twice on the console](decisions/0033-dsp-stores-that-lose-the-bus-on-the-console.md)
 
 ### Hardware
 - [The main bus](hardware/main-bus.md): what the port of Tom's and Jerry's bus logic leaves out

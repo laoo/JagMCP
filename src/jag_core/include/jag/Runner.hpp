@@ -35,13 +35,20 @@ struct RunOptions
   std::string cart;           // the cartridge's ROM, from $800000
   std::string bios;           // the OS ROM in place of the boot program (with m68k; the program optional)
   std::optional<bool> compat; // the MiSTer core's max_compat (decision 0022); left out, on with a BIOS
-  std::string framesDir;      // each frame written there as frame_NNNN.ppm
-  std::string wav;            // the I2S output written there, a frame a sample
-  std::uint64_t part = 0;     // DSP cycles a part of the run, as a front end runs it; 0 for one part
+  std::optional<bool>
+      openBus;            // Jerry's store latch takes the open bus, off the console's (0033); left out, off with a BIOS
+  std::string framesDir;  // each frame written there as frame_NNNN.ppm
+  std::string wav;        // the I2S output written there, a frame a sample
+  std::uint64_t part = 0; // DSP cycles a part of the run, as a front end runs it; 0 for one part
 
   bool compatible() const
   {
     return compat.value_or( !bios.empty() );
+  }
+
+  bool openBusStores() const
+  {
+    return openBus.value_or( bios.empty() );
   }
 };
 
