@@ -22,10 +22,11 @@ Warnings", March 22, 1995, GPU/DSP item 7):
 Its example: `load (r1),r2` / `or r10,r11` / `store r11,(r3)` will not work correctly,
 `load (r1),r2` / `or r2,r11` / `store r11,(r3)` will (the `or` waits for the load).
 
-A program on the console (`openbus_test`, 2026, through the BIOS from a cartridge) runs
-`random_external_0110` and `_0195` 256 times each, after different delays, and lets the DSP store
-2048 long words, words or bytes 64 times, without a load before each store (long words also with
-one), with the blitter copying in DRAM or the bus otherwise quiet:
+A program on the console ([`openbus_test`](../../tests/console/openbus_test/README.md), 2026,
+through the BIOS from a cartridge) runs `random_external_0110` and `_0195` 256 times each, after
+different delays, and lets the DSP store 2048 long words, words or bytes 64 times, without a load
+before each store (long words also with one), with the blitter copying in DRAM or the bus
+otherwise quiet:
 
 | | console | core, open bus |
 |---|---|---|

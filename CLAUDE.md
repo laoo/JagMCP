@@ -62,6 +62,7 @@ cd tests && ../build/release/src/jag_cli/jagmcp-cli --batch control/lines.jsonl 
 | `tests/programs/` | Binaries of real programs and their data; a `.run` names the binary and the arguments. |
 | `tests/reference/` | Recorded runs of `jagsim`: `.o`, `.args`, `.trace`, `.state`. Each is a CTest test. |
 | `tests/control/` | Transcripts of the control protocol (`.jsonl` requests, `.expect` answers the emulator wrote) and the network transports' test. |
+| `tests/console/` | Sources of tests for a real console; their measurements are in the decisions. Not built, not run by CTest. |
 | `.claude/skills/` | The `jagmcp` skill: driving the emulator as an agent. |
 | `scripts/` | Recording references, disassembling, formatting; `jagmcp.py`, the control protocol's client. |
 | `docs/` | See `docs/README.md`; it is the index and the rulebook. |
