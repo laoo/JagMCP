@@ -24,28 +24,36 @@ Its example: `load (r1),r2` / `or r10,r11` / `store r11,(r3)` will not work corr
 
 A program on the console (`openbus_test`, 2026, through the BIOS from a cartridge) runs
 `random_external_0110` and `_0195` 256 times each, after different delays, and lets the DSP store
-2048 long words, 32 times, without and with a load before each store:
+2048 long words, words or bytes 64 times, without a load before each store (long words also with
+one), with the blitter copying in DRAM or the bus otherwise quiet:
 
-| | console | core, open bus | core, without |
-|---|---|---|---|
-| `random_external_0110`, runs wrong | 239 | 241 | 0 |
-| `random_external_0195`, runs wrong | 232 | 225 | 0 |
-| stores without a load, Blitter busy, longs wrong of 65536 | 1 | 3 | 0 |
-| stores with a load first, Blitter busy | 0 | 0 | 0 |
-| stores without a load, bus quiet | 3 | 2 | 0 |
+| | console | core, open bus |
+|---|---|---|
+| `random_external_0110`, runs wrong | 244 | 239 |
+| `random_external_0195`, runs wrong | 238 | 223 |
+| long words without a load, blitter busy, wrong of 131072 | 6 | 2 |
+| long words with a load first, blitter busy | 0 | 0 |
+| long words without a load, bus quiet | 3 | 5 |
+| words, blitter busy | 0 | 60915 |
+| words, bus quiet | 0 | 37727 |
+| bytes, blitter busy | 0 | 5 |
+| bytes, bus quiet | 0 | 0 |
 
-The console fails as often as the netlist, but writes a different value: the store's high half,
-then the high half again. `random_external_0110` leaves `$89BA89BA` where the store's data is
+Long word stores fail on the console as often as in the netlist, but with a different value: the
+store's high half, then the high half again. `random_external_0110` leaves `$89BA89BA` where the store's data is
 `$89BA23AF` (the netlist `$FFFF0000`), `_0195` `$00070007` for `$0007F000`, the stores
-`$5A4A5A4A` for `$5A4A023C`. Never `$FFFF`. A likely cause: on the chip the undriven path keeps the
-half driven on it last, the FPGA core resolves it to its pull-ups and the bus's last half word.
+`$5A4A5A4A` for `$5A4A023C`. Never `$FFFF`. Word and byte stores never fail on the console, where
+the netlist writes the word or byte stored before (almost every other word in a loop of `storew`).
+A likely cause: on the chip the undriven path keeps the half driven on it last, the store's high
+half for a long word and its data for a word or a byte; the FPGA core resolves it to its pull-ups
+and the bus's last half word.
 
 ## Decision
 
 - **An `openBus` option** in the core (`RunOptions::openBus`, `--open-bus`, `--no-open-bus`,
   `MainBus::setOpenBus`): on, the latch takes the open bus as the netlist does; off, a long word
-  store takes its high half into both halves, as the console does. Only long word stores were
-  measured: a word or a byte store takes the open bus either way.
+  store takes its high half into both halves and a word or a byte store keeps its data, as the
+  console does.
 - **It is off where a BIOS is given**, as games run, and on otherwise, as the references run: the
   references stay the netlist's, as with [0022](0022-mister-compatibility-fixes.md)'s `compat`.
 - It changes only the data latched, not the bus's control, so the timing automaton is the same
@@ -58,5 +66,3 @@ half driven on it last, the FPGA core resolves it to its pull-ups and the bus's 
 - A RISC program, a COFF program and a reference run take the netlist's open bus unless
   `--no-open-bus` is given; a COFF program started as a Skunkboard starts it gets the netlist's
   value, not the console's.
-- What a word or a byte store writes on the console is not known; a test like `openbus_test` with
-  `storew` would tell.
