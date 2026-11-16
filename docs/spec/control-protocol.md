@@ -795,6 +795,9 @@ Errors: `recording_not_running`, `record_failed`.
 Records the I2S output from now on, into a WAV file: 16-bit stereo, one sample per I2S frame, at
 the rate the frames come. Nothing is resampled. The file is written by `audio.capture_stop`.
 
+The channels are the console's. The left channel is what the DSP writes to RTXD (`$F1A14C`). The
+right channel is what it writes to LTXD (`$F1A148`). The board's DAC swaps them so.
+
 | Param | Meaning |
 |---|---|
 | `path` | Where to write the WAV file. |

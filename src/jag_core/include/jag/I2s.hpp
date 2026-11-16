@@ -92,7 +92,7 @@ public:
   }
 
   // Each frame the interface generates (its word select rises with the serial clock enabled): the
-  // transmit latches as they stand. Null to keep none.
+  // transmit latches as they stand, as the console's left and right outputs. Null to keep none.
   using SampleSink = void ( * )( void* context, std::uint16_t left, std::uint16_t right );
 
   void setSampleSink( SampleSink sink, void* context )
@@ -113,11 +113,14 @@ private:
   void settle( std::uint64_t steps );
   std::uint64_t findInterruptRise( std::uint64_t now );
 
-  // The word select as it was before a step of the generator: a rise starts a frame.
+  // The word select as it was before a step of the generator: a rise starts a frame. In 16 bit mode
+  // dpl (LTXD, $F1A148) is shifted out while the word select is low, and the board's DAC
+  // (TDA1545A; Jaguar_MiSTer rtl/jaguar.v, rtl/tda1545a.v) puts that word on its right output: the
+  // console's right channel is dpl, its left dpr (RTXD, $F1A14C).
   void framed( bool wsBefore ) const
   {
     if ( mSampleSink && mEnable && mWsout && !wsBefore )
-      mSampleSink( mSampleContext, mLeft, mRight );
+      mSampleSink( mSampleContext, mRight, mLeft );
   }
 
   SampleSink mSampleSink = nullptr;
