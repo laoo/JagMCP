@@ -478,19 +478,32 @@ The emulation thread owns the machine as a session of the control API (see
 [The control API](#the-control-api)). It answers the API's requests between two parts of the run.
 So the window and the programs that it serves drive the same machine.
 
-**Starting a cartridge.** A cartridge (`.j64`, `.jag`) is started when it is dropped onto the
-window, chosen with File > Open, or given alone on the command line. It boots with a BIOS, as
-games do in PGMEmu. The BIOS is chosen in this order:
+**Starting a cartridge.** A cartridge is started when it is dropped onto the window, chosen with
+File > Open, or given alone on the command line. A file opened this way is told by its bytes, not
+its name, because collections name their files in many ways (`.j64`, `.jag`, `.rom`, `.bin`):
+
+- a BS94 or COFF header, or the extension `.o` or `.cof`, makes it a program for the runner;
+- a BIOS image makes it the BIOS for cartridges. It is remembered, as with File > Choose BIOS.
+  BIOS dumps also come as `.j64`;
+- any other file is a cartridge.
+
+With the runner's arguments, a cartridge is told by its extension: `.j64`, `.jag` or `.rom`. It
+boots with a BIOS, as games do in PGMEmu. The BIOS is chosen in this order:
 
 1. one given with `--bios`, for this start only;
 2. the one remembered in `settings.json`, in the preferences directory;
 3. one found next to the cartridge, in a `bios` folder there, one folder up, or in a `bios`
-   folder there. It must be 128 KB. The names are tried in this order: `jagboot.rom`,
+   folder there. It must be a BIOS image. The names are tried in this order: `jagboot.rom`,
    `jagboot_model_m.rom`, No-Intro's `[BIOS] Atari Jaguar (World).j64`, and similar names. A BIOS
    found this way is remembered.
 4. one chosen with File > Choose BIOS. It is remembered.
 
 Without a BIOS the start fails, and the status window says so.
+
+A BIOS image is 128 KB, and its reset vector (the PC at offset 4) points into the ROM at
+$E00000-$E1FFFF. The dumps start this way, with the 68000's vectors. A cartridge starts with
+its encrypted boot block instead, and no cartridge is that small. The size alone would take a small
+homebrew image for a BIOS.
 
 **Recording.** File > Record video and `--record FILE` start a record through the same
 `video.record_start` method that a client calls

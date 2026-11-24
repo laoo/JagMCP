@@ -26,7 +26,7 @@ Each tagged release on GitHub has packages for macOS (arm64), Linux (x64) and Wi
 ## Running
 
 JagMCP does not include a BIOS or any games. You need your own 128 KB boot ROM (for example
-`jagboot.rom`) and cartridge images (`.j64` or `.jag`).
+`jagboot.rom`) and cartridge images (`.j64`, `.jag`, `.rom` or any other name).
 
 Both programs print their options with `--help`.
 
@@ -36,7 +36,8 @@ Both programs print their options with `--help`.
 build/release/src/jag_app/jagmcp game.j64
 ```
 
-You can also drop a cartridge onto the window, or use File > Open. The window looks for the BIOS
+You can also drop a cartridge onto the window, or use File > Open. The window tells a cartridge, a
+program and a BIOS apart by their contents, not by their names. The window looks for the BIOS
 next to the cartridge, in a `bios` folder there, or one folder up. You can also give it with
 `--bios`, or choose it with File > Choose BIOS. The window remembers it.
 

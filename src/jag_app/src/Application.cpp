@@ -1,6 +1,7 @@
 #include "Application.hpp"
 
 #include "jag/Machine.hpp"
+#include "jag/ProgramFile.hpp"
 #include "jag/Runner.hpp"
 
 #include <SDL3/SDL.h>
@@ -15,6 +16,8 @@
 #include <exception>
 #include <filesystem>
 #include <fstream>
+#include <iterator>
+#include <span>
 #include <string_view>
 #include <system_error>
 #include <utility>
@@ -38,8 +41,9 @@ std::string sdlError( std::string const& what )
   return what + ": " + SDL_GetError();
 }
 
-// A BIOS image: the 68000's OS ROM, 128 KB.
+// A BIOS image: the 68000's OS ROM, 128 KB at $E00000.
 constexpr std::uintmax_t BIOS_SIZE = 0x20000;
+constexpr std::uint32_t BIOS_ADDRESS = 0xE00000;
 
 // The names a BIOS image goes by in a ROM collection, the one it is looked for by first: MAME's,
 // the model M's and the model K's as dumps name them, No-Intro's. Matched ignoring case.
@@ -55,14 +59,58 @@ std::string lowered( std::string_view text )
   return out;
 }
 
+// Whether `path` holds a BIOS image: 128 KB, starting with the 68000's reset vectors, the second of
+// which (the PC) points into the ROM itself. A cartridge starts with its encrypted boot block, and
+// no cartridge is that small.
+bool isBios( std::filesystem::path const& path )
+{
+  std::error_code failed;
+  if ( !std::filesystem::is_regular_file( path, failed ) || std::filesystem::file_size( path, failed ) != BIOS_SIZE )
+    return false;
+  std::ifstream in{ path, std::ios::binary };
+  std::array<std::uint8_t, 8> vectors{};
+  if ( !in.read( reinterpret_cast<char*>( vectors.data() ), vectors.size() ) )
+    return false;
+  std::uint32_t const pc = static_cast<std::uint32_t>( vectors[4] ) << 24 |
+                           static_cast<std::uint32_t>( vectors[5] ) << 16 |
+                           static_cast<std::uint32_t>( vectors[6] ) << 8 | vectors[7];
+  return pc >= BIOS_ADDRESS && pc < BIOS_ADDRESS + BIOS_SIZE;
+}
+
 // A cartridge's image, booted by the BIOS, rather than a program for the runner
 bool isCartridge( std::filesystem::path const& path )
 {
   std::string const extension = lowered( path.extension().string() );
-  return extension == ".j64" || extension == ".jag";
+  return extension == ".j64" || extension == ".jag" || extension == ".rom";
 }
 
-// A file of `folder` named as a BIOS image is, of its size; the first of BIOS_NAMES' order
+// What a file opened alone holds. Collections name their files in many ways, and a BIOS can carry a
+// cartridge's extension, so the bytes decide, not the name.
+enum class FileKind : std::uint8_t
+{
+  Cartridge,
+  Bios,
+  Program // for the runner, which says what is wrong with it
+};
+
+FileKind kindOf( std::filesystem::path const& path )
+{
+  std::error_code failed;
+  std::ifstream in{ path, std::ios::binary };
+  if ( !std::filesystem::is_regular_file( path, failed ) || !in )
+    return isCartridge( path ) ? FileKind::Cartridge : FileKind::Program;
+  // the runner's formats start with a header: BS94 or COFF
+  std::array<std::uint8_t, 20> start{};
+  in.read( reinterpret_cast<char*>( start.data() ), start.size() );
+  std::span<std::uint8_t const> const read{ start.data(), static_cast<std::size_t>( in.gcount() ) };
+  bool const bs94 = read.size() >= 4 && std::string_view{ reinterpret_cast<char const*>( read.data() ), 4 } == "BS94";
+  std::string const extension = lowered( path.extension().string() );
+  if ( bs94 || isCoff( read ) || extension == ".o" || extension == ".cof" )
+    return FileKind::Program;
+  return isBios( path ) ? FileKind::Bios : FileKind::Cartridge;
+}
+
+// A file of `folder` named as a BIOS image is, that holds one; the first of BIOS_NAMES' order
 std::optional<std::filesystem::path> biosIn( std::filesystem::path const& folder )
 {
   std::error_code failed;
@@ -74,8 +122,7 @@ std::optional<std::filesystem::path> biosIn( std::filesystem::path const& folder
   {
     std::string const name = lowered( entry.path().filename().string() );
     for ( std::size_t i = 0; i < rank; ++i )
-      if ( name == lowered( BIOS_NAMES[i] ) && entry.is_regular_file( failed ) &&
-           entry.file_size( failed ) == BIOS_SIZE )
+      if ( name == lowered( BIOS_NAMES[i] ) && isBios( entry.path() ) )
       {
         best = entry.path();
         rank = i;
@@ -235,11 +282,30 @@ Application::~Application()
 void Application::load( std::vector<std::string> const& args )
 {
   // a cartridge, alone or with the runner's arguments: booted by the BIOS given among them, else by
-  // the one remembered or found beside it
+  // the one remembered or found beside it. A file alone is told by its bytes, and a BIOS among them
+  // is taken as the BIOS; with arguments, a cartridge is told by its extension.
   std::vector<std::string> runArgs = args;
-  if ( auto const cart = std::ranges::find_if( runArgs, []( std::string const& a ) { return isCartridge( a ); } );
-       cart != runArgs.end() && std::ranges::find( runArgs, "--cart" ) == runArgs.end() &&
-       ( cart == runArgs.begin() || !( cart - 1 )->starts_with( "--" ) ) )
+  auto cart = runArgs.end();
+  if ( runArgs.size() == 1 && !runArgs[0].ends_with( ".run" ) )
+  {
+    FileKind const kind = kindOf( runArgs[0] );
+    if ( kind == FileKind::Bios )
+    {
+      if ( setBios( runArgs[0], true ) )
+        SDL_Log( "BIOS for cartridges: %s", runArgs[0].c_str() );
+      return;
+    }
+    if ( kind == FileKind::Cartridge )
+      cart = runArgs.begin();
+  }
+  else if ( std::ranges::find( runArgs, "--cart" ) == runArgs.end() )
+  {
+    // not an option's value, such as the BIOS of --bios jagboot.rom
+    for ( auto at = runArgs.begin(); at != runArgs.end() && cart == runArgs.end(); ++at )
+      if ( isCartridge( *at ) && ( at == runArgs.begin() || !( at - 1 )->starts_with( "--" ) ) )
+        cart = at;
+  }
+  if ( cart != runArgs.end() )
   {
     std::string const path = *cart;
     runArgs.erase( cart );
@@ -340,10 +406,9 @@ std::string Application::biosFor( std::filesystem::path const& cartridge )
 
 bool Application::setBios( std::string const& path, bool keep )
 {
-  std::error_code failed;
-  if ( !std::filesystem::is_regular_file( path, failed ) || std::filesystem::file_size( path, failed ) != BIOS_SIZE )
+  if ( !isBios( path ) )
   {
-    mLastError = path + " is not a BIOS image (128 KB)";
+    mLastError = path + " is not a BIOS image: it must be 128 KB, with its reset vector in $E00000-$E1FFFF";
     return false;
   }
   mBios = path;
@@ -366,8 +431,10 @@ void Application::keepSetting( std::string const& key, control::Json value )
 
 void Application::openFile()
 {
-  static constexpr SDL_DialogFileFilter FILTERS[] = { { .name = "Jaguar cartridges", .pattern = "j64;jag" },
-                                                      { .name = "Programs", .pattern = "run;o;cof" } };
+  // the file is told by its bytes (kindOf), so any file can be chosen
+  static constexpr SDL_DialogFileFilter FILTERS[] = { { .name = "Jaguar cartridges", .pattern = "j64;jag;rom" },
+                                                      { .name = "Programs", .pattern = "run;o;cof" },
+                                                      { .name = "All files", .pattern = "*" } };
   SDL_ShowOpenFileDialog(
       []( void* self, char const* const* files, int /*filter*/ )
       {
@@ -382,7 +449,7 @@ void Application::openFile()
       this,
       mWindow,
       FILTERS,
-      2,
+      static_cast<int>( std::size( FILTERS ) ),
       nullptr,
       false );
 }
