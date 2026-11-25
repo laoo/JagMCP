@@ -187,6 +187,22 @@ public:
     return mGw[index( m )].loadData;
   }
 
+  // The loads that ended for the master's processor while it was stopped (attached at
+  // `UINT64_MAX`): the cycle each one's data was taken in (ddatld) and the data, oldest first;
+  // taken by the processor as it starts again or its run ends.
+  struct LateLoad
+  {
+    std::uint64_t cycle = 0;
+    std::uint32_t data = 0;
+  };
+
+  std::vector<LateLoad> takeLateLoads( Master m )
+  {
+    std::vector<LateLoad> loads;
+    loads.swap( mLateLoads[index( m )] );
+    return loads;
+  }
+
   // Jerry's timers, which writes on the bus program.
   Timers& timers()
   {
@@ -643,6 +659,8 @@ private:
   // by master: the first cycle its processor has not handed over, and its request not yet stepped;
   // the emulated 68000's horizon after the RISCs'
   std::uint64_t mHorizon[3] = { UINT64_MAX, UINT64_MAX, UINT64_MAX };
+  static constexpr std::size_t LATE_LOADS = 2; // a processor has two external loads under way at most
+  std::vector<LateLoad> mLateLoads[2];
   std::uint64_t mPendingCycle[2] = { UINT64_MAX, UINT64_MAX };
   GatewayRequest mPending[2]{};
   bool mGpuAtJerry = false;

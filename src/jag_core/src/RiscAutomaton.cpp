@@ -762,6 +762,7 @@ void Risc::finish()
   // the I2S interface up to the end of a run the processor stopped in, or did not start in
   if ( !mGo && mLimit != UINT64_MAX )
     i2sCatchUp( mLimit );
+  lateLoads(); // the loads that ended after the stop
   // the flags due by the last cycle, for the trace
   flagsAt( mStopAt ? mStopAt - 1 : 0 );
   flushTrace( UINT64_MAX );

@@ -23,7 +23,8 @@ namespace
 // Latencies, in DSP cycles from issue to the register write.
 constexpr std::uint64_t MOVE_LATENCY = 1;
 constexpr std::uint64_t ALU_LATENCY = 2;
-constexpr std::uint64_t STOP_DELAY = 2; // from the cycle the write to D_CTRL is served
+constexpr std::uint64_t STOP_DELAY = 2;      // from the cycle the write to D_CTRL is served
+constexpr std::uint64_t LATE_LOAD_WRITE = 2; // a load's write after the cycle its data is taken in
 
 std::int32_t signExtend5( std::uint32_t v )
 {
@@ -299,6 +300,55 @@ void Risc::go()
   start( 0 );
 }
 
+// sboard.v: an external load under way as GO fell is written back as its data comes, the processor
+// stopped (m68k_dsp_restart); the bus keeps what came for the processor stopped, and it is written
+// here, as the processor runs again or its run ends, in the cycle the netlist writes it. Loads still
+// under way go on as before.
+void Risc::lateLoads()
+{
+  std::vector<MainBus::LateLoad> const loads = mBus.takeLateLoads( mMaster );
+  if ( loads.empty() )
+    return;
+  // the registers the loads under way write, in order; one whose data came before the stop
+  // (xld_wbackl, waiting for a port) is not among them
+  std::uint32_t dst[2] = {};
+  std::size_t n = 0;
+  if ( mTwold && !mXlddSel && !mXldWbackl )
+  {
+    dst[n++] = mXlddst;
+    dst[n++] = mXlddst2;
+  }
+  else if ( mTwold )
+    dst[n++] = mXlddst2;
+  else if ( mOneld && !mXlddSel && !mXldWbackl )
+    dst[n++] = mXlddst;
+  std::size_t const done = std::min( n, loads.size() );
+  for ( std::size_t k = 0; k < done; ++k )
+  {
+    std::uint32_t const reg = dst[k];
+    std::uint64_t const at = loads[k].cycle + LATE_LOAD_WRITE;
+    mOld[reg] = loads[k].data;
+    mRegs[reg] = loads[k].data;
+    mReady[reg] = std::max( mReady[reg], at );
+    if ( mTrace )
+    {
+      char text[32];
+      std::snprintf( text, sizeof text, "W%02u%c:%08x", reg & 31, reg >= 32 ? '"' : '\'', loads[k].data );
+      emit( at, text, UINT64_MAX );
+    }
+  }
+  if ( done == n && !mXldWbackl )
+  {
+    mOneld = mTwold = mOneldi = mTwoldi = mXlddSel = false;
+  }
+  else if ( done == 1 && n == 2 ) // the second still under way
+  {
+    mTwold = mTwoldi = mXlddSel = false;
+    mOneld = mOneldi = true;
+    mXlddst = dst[1];
+  }
+}
+
 // GO set again by another master once the processor has stopped (a run ended where its GO fell):
 // it starts afresh, its instruction queue empty, nothing in its decode stage or its memory
 // controller, as at its first GO; its registers, flags, RAM and PC are as they were left. (A node
@@ -306,6 +356,7 @@ void Risc::go()
 // pending in it.)
 void Risc::restart( std::uint64_t cycle )
 {
+  lateLoads();
   mAccess = Access{};
   mXprog = false;
   mXpabort = false;

@@ -62,7 +62,9 @@ signal; these are the places it knowingly does not, each with what the FPGA simu
   serves them, but the cycle the controller gives up for them (`ioreq` holding the DSP's own
   requests back) is not modelled, nor a D_CTRL written then. A RISC stopped and started again
   starts as at its first GO, its instruction queue, decode stage and memory controller empty: what
-  its pipeline left from before its stop is not carried over.
+  its pipeline left from before its stop is not carried over. An external load under way as its GO
+  fell is the exception: the bus serves it, and its value is written into the register as it comes,
+  the processor stopped (`m68k_dsp_restart`).
 - **A write through a slave port into a running RISC** (the 68000's, the GPU's into the DSP) is
   made in the cycle the RISC's memory controller serves it, before the rest of that cycle reads
   what it writes, whichever processor the bus steps the cycle for: the RISC waits at that cycle

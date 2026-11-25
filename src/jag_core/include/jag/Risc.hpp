@@ -359,6 +359,7 @@ private:
 
   void start( std::uint64_t cycle );
   void restart( std::uint64_t cycle );
+  void lateLoads();
   void i2sCatchUp( std::uint64_t cycle );
 
   MainBus& mBus;

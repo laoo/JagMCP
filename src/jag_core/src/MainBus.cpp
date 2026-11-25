@@ -3048,6 +3048,10 @@ void MainBus::data( std::uint64_t cycle, Gathered& g, Signals const& s, Control 
     }
     gw.loadData = loadData[i];
     gw.progData = progData[i];
+    // a load that ends for a processor stopped since it asked for it (its GO cleared): the
+    // processor still writes it back as it comes, kept here until it runs again
+    if ( f.ddatld && !f.gpuMemw && mHorizon[i] == UINT64_MAX && mLateLoads[i].size() < LATE_LOADS )
+      mLateLoads[i].push_back( LateLoad{ cycle, loadData[i] } );
   }
   // gpu_mem.v: the gateway handing a program long word (gatereq) takes the GPU's local bus in the
   // cycle, as the slave's request does (datreqa, progreqa)
