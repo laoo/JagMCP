@@ -148,6 +148,13 @@ public:
     mOpenBus = on;
   }
 
+  // An NTSC console: JOYBUTS's bit 4 (jaguar.v b[4], the core's ntsc input), which the BIOS reads
+  // to set the video timing.
+  void setNtsc( bool on )
+  {
+    mNtsc = on;
+  }
+
   // G_HIDATA, the GPU's gateway's hirdata: the high half of a phrase loaded or to store.
   std::uint32_t hidata() const
   {
@@ -215,7 +222,7 @@ public:
 
   // JOYSTICK's high byte and JOYBUTS's low byte as a read gives them (jaguar.v joy[15:8], b[7:0]):
   // the rows of the column each port's half of the latch selects (jag_controller_mux.v), low for a
-  // button held; JOYBUTS's high bits a PAL console's.
+  // button held; JOYBUTS's high bits a PAL or an NTSC console's (bit 4, setNtsc).
   std::uint8_t joystickHigh() const
   {
     return padHigh( padRows( 0 ), padRows( 1 ) );
@@ -223,7 +230,7 @@ public:
 
   std::uint8_t joystickButtons() const
   {
-    return static_cast<std::uint8_t>( ( padRows( 0 ) & 3u ) | ( padRows( 1 ) & 3u ) << 2 | 0x60u );
+    return static_cast<std::uint8_t>( ( padRows( 0 ) & 3u ) | ( padRows( 1 ) & 3u ) << 2 | 0x60u | ( mNtsc ? 0x10u : 0u ) );
   }
 
   // Tom's time base, PIT and interrupt control, which writes on the bus program.
@@ -596,6 +603,7 @@ private:
   std::uint8_t mJoyLatch = 0xff; // u374
   bool mJoyEnable = false;       // joyen
   bool mOpenBus = true;          // setOpenBus
+  bool mNtsc = false;            // setNtsc
 
   std::array<std::uint32_t, 2> mPads{};
 

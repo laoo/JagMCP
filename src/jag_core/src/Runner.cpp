@@ -78,6 +78,8 @@ std::string_view runOptionsHelp()
          "                      netlist does. On without --bios.\n"
          "  --no-open-bus       Let a long word store write its high half twice, a word\n"
          "                      or a byte its data, as the console does.\n"
+         "  --ntsc              Run an NTSC console instead of a PAL one: JOYBUTS's bit 4\n"
+         "                      set, the BIOS's NTSC video for a COFF program.\n"
          "  --step              Step every cycle, without the fast timing. Slow; for checking.\n"
          "  --part N            Run in parts of N DSP cycles, as the window does.\n"
          "  --log FILE          Write a trace of every event to FILE.\n"
@@ -128,6 +130,8 @@ RunOptions parseRunOptions( std::span<std::string const> args )
       o.logLines = std::stoull( value() );
     else if ( arg == "--log-from" )
       o.logFrom = std::stoull( value() );
+    else if ( arg == "--ntsc" )
+      o.ntsc = true;
     else if ( arg == "--step" )
       o.step = true;
     else if ( arg == "--gpu" )

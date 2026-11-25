@@ -45,5 +45,5 @@ frame.
   (`sim/sim_main.cpp`), and the 68000 references start with it.
 - What else the BIOS leaves is not set: its exception vectors in RAM, the clock dividers of Jerry,
   the GPU it has stopped. A program that depends on these runs only from a cartridge image.
-- The console is PAL. An NTSC timing is not available, as for the rest of the emulator.
+- The console is PAL. With `--ntsc` it is NTSC, and the video the BIOS writes on one (0034).
 - A COFF file with relocations is loaded as it is. The linker's absolute output has none.
