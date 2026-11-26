@@ -57,7 +57,8 @@ The `jaguar` module of the core (everything below the MiSTer framework) with:
   in `jaguar.v`) keeps its words in a RAM of the testbench read a cycle later, erased at the start.
 - **`--bios FILE`** puts FILE (128 KB) in the OS ROM in place of the boot program, with `--m68k`: the
   run is the console's from reset, the program optional.
-- No video setup by the boot program (the object processor is idle), joypads released, PAL (NTSC with `--ntsc`: the core's `ntsc` input).
+- No video setup by the boot program (the object processor is idle), joypads released, PAL
+  (NTSC with `--ntsc`: the core's `ntsc` input).
 
 Differences from the Quartus build, all on the simulation side:
 

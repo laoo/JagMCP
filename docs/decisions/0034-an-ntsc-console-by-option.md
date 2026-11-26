@@ -17,9 +17,8 @@ the NTSC video timing. The NTSC system clock (26.590906 MHz) differs from the PA
 - **`--ntsc` sets JOYBUTS's bit 4**, in the runner and in the simulation (`jagsim --ntsc`, the
   core's `ntsc` input). JOYBUTS reads `$FF7F` with the pads released instead of `$FF6F`.
 - **A COFF program on an NTSC console gets the NTSC video**: the boot program writes the registers
-  that it writes for PAL with the values the BIOS writes when the bit is set, read from a run of
-  the BIOS with watchpoints on Tom's registers, in the same order. VDE is `$FFFF` as for PAL, and VI
-  the line a program's startup code sets on NTSC.
+  that it writes for PAL with the values the BIOS (model M) writes when the bit is set, in the
+  same order.
 - **The clock stays the PAL one** (`CYCLES_PER_SECOND`): a second of NTSC console time is counted
   0.01% long.
 

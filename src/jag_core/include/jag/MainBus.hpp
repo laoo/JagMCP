@@ -230,7 +230,8 @@ public:
 
   std::uint8_t joystickButtons() const
   {
-    return static_cast<std::uint8_t>( ( padRows( 0 ) & 3u ) | ( padRows( 1 ) & 3u ) << 2 | 0x60u | ( mNtsc ? 0x10u : 0u ) );
+    return static_cast<std::uint8_t>( ( padRows( 0 ) & 3u ) | ( padRows( 1 ) & 3u ) << 2 | 0x60u |
+                                      ( mNtsc ? 0x10u : 0u ) );
   }
 
   // Tom's time base, PIT and interrupt control, which writes on the bus program.

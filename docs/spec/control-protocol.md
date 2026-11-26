@@ -232,8 +232,8 @@ digits after `0x` or `$`: `"0xf03000"`, `"$f03000"`. Answers always give integer
 
 ## 5. Methods
 
-Time is counted in DSP cycles, as the runner counts them: 26,593,900 per second (PAL; also with `--ntsc`, decision 0034). 50 frames of
-video are one second.
+Time is counted in DSP cycles, as the runner counts them: 26,593,900 per second (PAL; also with
+`--ntsc`, decision 0034). 50 frames of video are one second, 60 with `--ntsc`.
 
 | Method | What it does |
 |---|---|

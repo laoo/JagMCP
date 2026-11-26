@@ -35,14 +35,13 @@ constexpr std::array<std::pair<std::uint32_t, std::uint16_t>, 20> BIOS_VIDEO = {
     { 0xf00048, 0xffff }, { 0xf00040, 0x0258 }, { 0xf0004a, 0x0265 }, { 0xf00044, 0x026a }, { 0xf0004e, 0x0261 },
 } };
 
-// The same registers as the BIOS sets them on an NTSC console (JOYBUTS's bit 4 set), read from a run of
-// it with watchpoints on Tom's registers. VDE and VI as for PAL: $FFFF, and the vertical interrupt's
-// line as a program's startup code sets it on NTSC ($1FB; $261 on PAL).
+// The same registers as the BIOS (model M) sets them on an NTSC console (JOYBUTS's bit 4 set), in
+// the same order.
 constexpr std::array<std::pair<std::uint32_t, std::uint16_t>, 20> BIOS_VIDEO_NTSC = { {
     { 0xf00058, 0x0000 }, { 0xf0002a, 0x0000 }, { 0xf0002e, 0x034c }, { 0xf00030, 0x06b1 }, { 0xf00032, 0x007d },
-    { 0xf00034, 0x06cd }, { 0xf00036, 0x028b }, { 0xf00054, 0x0310 }, { 0xf0003c, 0x06a0 }, { 0xf00038, 0x00a6 },
+    { 0xf00034, 0x06cd }, { 0xf00036, 0x028b }, { 0xf00054, 0x030e }, { 0xf0003c, 0x06a0 }, { 0xf00038, 0x00a6 },
     { 0xf0003a, 0x00a6 }, { 0xf0003e, 0x020b }, { 0xf0004c, 0x0006 }, { 0xf00042, 0x0018 }, { 0xf00046, 0x002e },
-    { 0xf00048, 0xffff }, { 0xf00040, 0x01f4 }, { 0xf0004a, 0x01ff }, { 0xf00044, 0x0205 }, { 0xf0004e, 0x01fb },
+    { 0xf00048, 0xffff }, { 0xf00040, 0x01f4 }, { 0xf0004a, 0x01ff }, { 0xf00044, 0x0205 }, { 0xf0004e, 0x01f9 },
 } };
 
 // The object list the BIOS (model M) leaves when it starts a cartridge: a STOP object at $1000,
@@ -51,9 +50,9 @@ constexpr std::uint32_t BIOS_OBJECT_LIST = 0x1000;
 
 // The OS ROM of the simulation's --m68k (sim/sim_main.cpp): its vectors, then MEMCON1, MEMCON2,
 // G_END and D_END as the BIOS sets them, JOYSTICK, and a jump to the program. With `biosVideo`, the
-// video as the BIOS leaves it too (on an NTSC console with `ntsc`), before the jump: a COFF program is uploaded by a loader after
-// the BIOS has booted, and sets only part of the video itself (decision 0028). OLP is set to the
-// BIOS's object list, which the Machine puts in RAM.
+// video as the BIOS leaves it too (on an NTSC console with `ntsc`), before the jump: a COFF program is uploaded by a
+// loader after the BIOS has booted, and sets only part of the video itself (decision 0028). OLP is set to the BIOS's
+// object list, which the Machine puts in RAM.
 std::vector<std::uint8_t> bootRom( std::uint32_t pc, bool biosVideo, bool ntsc )
 {
   std::vector<std::uint8_t> rom( ROM_SIZE, 0xff );
