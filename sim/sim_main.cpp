@@ -28,6 +28,7 @@
 //  --bios FILE       the OS ROM is FILE in place of the boot program (with --m68k; <file.o> optional)
 //  --compat          the MiSTer core's max_compat (decision 0022): vintbugfix, and the BIOS's
 //  --no-compat       cartridge checksum check skipped (patch_checksums); on with --bios, else off
+//  --ntsc            an NTSC console: the core's ntsc input set (JOYBUTS's bit 4)
 //  --load FILE@ADDR  load a file into main RAM (repeatable)
 //  --poke ADDR=VALUE write a big endian long into main RAM (repeatable)
 //  --log FILE        trace: one line per event, prefixed with the cycle since GO
@@ -282,6 +283,7 @@ int main( int argc, char** argv )
     uint32_t flags = 0x4000;
     bool gpu = false;
     bool m68k = false;
+    bool ntsc = false; // --ntsc: the core's ntsc input, JOYBUTS's bit 4
     std::vector<std::pair<uint32_t, uint32_t>> memHashes;
     std::vector<std::pair<std::string, uint32_t>> loads;
     std::vector<std::pair<uint32_t, uint32_t>> pokes;
@@ -341,6 +343,8 @@ int main( int argc, char** argv )
         cartPath = value();
       else if ( arg == "--bios" )
         biosPath = value();
+      else if ( arg == "--ntsc" )
+        ntsc = true;
       else if ( arg == "--compat" )
         compat = 1;
       else if ( arg == "--no-compat" )
@@ -497,7 +501,7 @@ int main( int argc, char** argv )
     top->analog_0 = top->analog_1 = top->analog_2 = top->analog_3 = 0x80;
     top->comlynx_rx = 1;
     top->audwaitl = 1;
-    top->ntsc = 0;
+    top->ntsc = ntsc;
     top->vintbugfix = compat == 1 || ( compat < 0 && !biosPath.empty() );
     top->gpu = gpu;
 

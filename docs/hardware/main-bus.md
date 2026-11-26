@@ -36,8 +36,9 @@ signal; these are the places it knowingly does not, each with what the FPGA simu
 - **Jerry's registers** other than the timers read as the simulation's: JOYSTICK's low byte the
   column latch JOYSTICK's last write left (with its bit 15 set) or $FF, bit 0 the EEPROM's DO; its
   high byte and JOYBUTS's low one the rows of the pads' columns the latch selects
-  (`jag_controller_mux.v`), JOYBUTS's high bits those of a PAL console ($FF6F with the pads
-  released, as the simulation's always are). The pads are two plain ones, held through the control
+  (`jag_controller_mux.v`), JOYBUTS's high bits those of a PAL console, or of an NTSC one with
+  `--ntsc` (bit 4 set, decision 0034) ($FF6F with the pads released, as the simulation's always
+  are). The pads are two plain ones, held through the control
   protocol; there is no Team Tap, mouse, rotary controller or light gun, and with a RISC's program
   the ports read as released. JINTCTRL latches the DSP's interrupt to the
   CPU and the two timers' (the external, the UART's and the I2S interface's are not modelled); its

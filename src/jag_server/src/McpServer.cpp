@@ -26,9 +26,10 @@ constexpr int METHOD_NOT_FOUND = -32601;
 constexpr int INVALID_PARAMS = -32602;
 
 constexpr std::string_view INSTRUCTIONS =
-    "JagMCP emulates the Atari Jaguar (PAL), cycle for cycle against its FPGA core. Load a program with "
+    "JagMCP emulates the Atari Jaguar (PAL, or NTSC with --ntsc), cycle for cycle against its FPGA core. Load a "
+    "program with "
     "emu_load (the arguments jagmcp-cli takes, or a .run file; --m68k --bios FILE --cart FILE for a cartridge), "
-    "run it with emu_run_frames (50 frames is a second) or emu_run_cycles, and look at it with "
+    "run it with emu_run_frames (50 frames is a second, 60 with --ntsc) or emu_run_cycles, and look at it with "
     "video_screenshot, memory_read, cpu_get_state and cpu_disassemble (cpu m68k, gpu or dsp). Runs stop "
     "early at breakpoints and watchpoints (debug_breakpoint_add, debug_watchpoint_add); debug_trace shows the "
     "last instructions; input_set and input_press hold the pads' buttons. Time is counted in DSP cycles of "

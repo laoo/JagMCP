@@ -35,16 +35,25 @@ constexpr std::array<std::pair<std::uint32_t, std::uint16_t>, 20> BIOS_VIDEO = {
     { 0xf00048, 0xffff }, { 0xf00040, 0x0258 }, { 0xf0004a, 0x0265 }, { 0xf00044, 0x026a }, { 0xf0004e, 0x0261 },
 } };
 
+// The same registers as the BIOS (model M) sets them on an NTSC console (JOYBUTS's bit 4 set), in
+// the same order.
+constexpr std::array<std::pair<std::uint32_t, std::uint16_t>, 20> BIOS_VIDEO_NTSC = { {
+    { 0xf00058, 0x0000 }, { 0xf0002a, 0x0000 }, { 0xf0002e, 0x034c }, { 0xf00030, 0x06b1 }, { 0xf00032, 0x007d },
+    { 0xf00034, 0x06cd }, { 0xf00036, 0x028b }, { 0xf00054, 0x030e }, { 0xf0003c, 0x06a0 }, { 0xf00038, 0x00a6 },
+    { 0xf0003a, 0x00a6 }, { 0xf0003e, 0x020b }, { 0xf0004c, 0x0006 }, { 0xf00042, 0x0018 }, { 0xf00046, 0x002e },
+    { 0xf00048, 0xffff }, { 0xf00040, 0x01f4 }, { 0xf0004a, 0x01ff }, { 0xf00044, 0x0205 }, { 0xf0004e, 0x01f9 },
+} };
+
 // The object list the BIOS (model M) leaves when it starts a cartridge: a STOP object at $1000,
 // which OLP points to.
 constexpr std::uint32_t BIOS_OBJECT_LIST = 0x1000;
 
 // The OS ROM of the simulation's --m68k (sim/sim_main.cpp): its vectors, then MEMCON1, MEMCON2,
 // G_END and D_END as the BIOS sets them, JOYSTICK, and a jump to the program. With `biosVideo`, the
-// video as the BIOS leaves it too, before the jump: a COFF program is uploaded by a loader after
-// the BIOS has booted, and sets only part of the video itself (decision 0028). OLP is set to the
-// BIOS's object list, which the Machine puts in RAM.
-std::vector<std::uint8_t> bootRom( std::uint32_t pc, bool biosVideo )
+// video as the BIOS leaves it too (on an NTSC console with `ntsc`), before the jump: a COFF program is uploaded by a
+// loader after the BIOS has booted, and sets only part of the video itself (decision 0028). OLP is set to the BIOS's
+// object list, which the Machine puts in RAM.
+std::vector<std::uint8_t> bootRom( std::uint32_t pc, bool biosVideo, bool ntsc )
 {
   std::vector<std::uint8_t> rom( ROM_SIZE, 0xff );
   std::size_t at = 0;
@@ -77,7 +86,7 @@ std::vector<std::uint8_t> bootRom( std::uint32_t pc, bool biosVideo )
   l( 0xf14000 );
   if ( biosVideo )
   {
-    for ( auto const& [address, value] : BIOS_VIDEO )
+    for ( auto const& [address, value] : ntsc ? BIOS_VIDEO_NTSC : BIOS_VIDEO )
     {
       w( 0x33fc ); // move.w #value,address
       w( value );
@@ -159,7 +168,7 @@ struct Machine::Ram : ExternalBus
         if ( address == 0xf14003 )
           return bus->joystickButtons();
       }
-      return JOYSTICK_PORTS[address & 3];
+      return static_cast<std::uint8_t>( JOYSTICK_PORTS[address & 3] | ( ntsc && ( address & 3 ) == 3 ? 0x10 : 0 ) );
     }
     return 0;
   }
@@ -177,6 +186,7 @@ struct Machine::Ram : ExternalBus
 
   static constexpr std::array<std::uint8_t, 4> JOYSTICK_PORTS = { 0xff, 0xff, 0xff, 0x6f };
   MainBus const* bus = nullptr;
+  bool ntsc = false; // JOYBUTS's bit 4 without a bus
 
   void writeLong( std::uint32_t address, std::uint32_t value ) override
   {
@@ -288,6 +298,7 @@ Machine::Machine( RunOptions const& options, TraceSink* trace )
     mRam->writeLong( address, v );
 
   mOutputs->framesDir = options.framesDir;
+  mRam->ntsc = options.ntsc;
   if ( options.m68k )
   {
     // the program's sections, the OS ROM, the cartridge
@@ -297,7 +308,7 @@ Machine::Machine( RunOptions const& options, TraceSink* trace )
         throw std::runtime_error( options.input + " does not fit in RAM" );
       std::ranges::copy( data, mRam->bytes.begin() + address );
     }
-    std::vector<std::uint8_t> rom = bootRom( options.pc.value_or( m68kProgram.entry ), m68kProgram.coff );
+    std::vector<std::uint8_t> rom = bootRom( options.pc.value_or( m68kProgram.entry ), m68kProgram.coff, options.ntsc );
     if ( !options.bios.empty() )
     {
       rom = readFile( options.bios );
@@ -321,6 +332,7 @@ Machine::Machine( RunOptions const& options, TraceSink* trace )
     noteUndrivenReads();
     mBus->setAutomaton( !options.step );
     mBus->setOpenBus( options.openBusStores() );
+    mBus->setNtsc( options.ntsc );
     mBus->tom().setVintFix( options.compatible() );
     mRam->bus = mBus.get();
     if ( !options.framesDir.empty() )
@@ -364,6 +376,7 @@ Machine::Machine( RunOptions const& options, TraceSink* trace )
   noteUndrivenReads();
   mBus->setAutomaton( !options.step );
   mBus->setOpenBus( options.openBusStores() );
+  mBus->setNtsc( options.ntsc );
   mBus->tom().setVintFix( options.compatible() );
   if ( !options.framesDir.empty() )
     mBus->tom().setFrameSink( &Outputs::frame, mOutputs.get() );

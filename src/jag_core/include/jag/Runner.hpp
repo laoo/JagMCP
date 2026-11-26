@@ -36,6 +36,7 @@ struct RunOptions
   std::string bios;            // the OS ROM in place of the boot program (with m68k; the program optional)
   std::optional<bool> compat;  // the MiSTer core's max_compat (decision 0022); left out, on with a BIOS
   std::optional<bool> openBus; // the netlist's open bus for DSP stores (decision 0033); left out, off with a BIOS
+  bool ntsc = false;           // an NTSC console: JOYBUTS's bit 4 set (decision 0034)
   std::string framesDir;       // each frame written there as frame_NNNN.ppm
   std::string wav;             // the I2S output written there, a frame a sample
   std::uint64_t part = 0;      // DSP cycles a part of the run, as a front end runs it; 0 for one part
