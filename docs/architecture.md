@@ -171,13 +171,14 @@ How the bus is modelled:
   - Data moves into DRAM when Tom strobes CAS.
   - A timer read moves when Tom's I/O cycle latches it.
 
-- **The GPU can fetch its program from outside its local space**, from main RAM or the cartridge.
-  A cartridge's GPU code that the BIOS boots can run this way. The fetch is a long-word cycle of
-  the gateway, as in `gpu_mem.v` and `gateway.v`:
+- **The GPU and the DSP can fetch their program from outside their local space**, from main RAM
+  or the cartridge. A cartridge's GPU code that the BIOS boots can run this way. The fetch is a
+  long-word cycle of the gateway, as in `gpu_mem.v` and `gateway.v`; the DSP's is two word cycles
+  of Jerry, at `cpu_addr`:
   - It queues behind a load or store that is under way, and they queue behind it.
   - Its address is kept apart from theirs (`cpu_addr`).
   - Its long word is taken in the cycle after the cycle starts (`prog_data`). It is handed to the
-    prefetch queue in the cycle after that (`gatereq`), when it takes the GPU's local bus.
+    prefetch queue in the cycle after that (`gatereq`); the GPU's takes its local bus then.
   - A jump in the meantime leaves the word untaken (`xpabort`).
 
 - **For a RISC program, the 68000 runs the reference boot program.** It ends its write of DSPGO

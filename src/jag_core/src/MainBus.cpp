@@ -3026,7 +3026,7 @@ void MainBus::data( std::uint64_t cycle, Gathered& g, Signals const& s, Control 
   // --- the clock edge ------------------------------------------------------------------------------
   if ( s.jack )
   {
-    j.ad = ( c.gw[DSP].progown || n.gw[DSP].progown ) ? dg.cpuAddr : dg.datAddr; // out_addr
+    j.ad = c.gw[DSP].progown ? dg.cpuAddr : dg.datAddr; // out_addr, of the cycle acknowledged
     j.adPc = dg.datPc;
   }
   // the gateways: cpu_addr for a fetch (cald), dat_addr for a load or store (dald); the masks
