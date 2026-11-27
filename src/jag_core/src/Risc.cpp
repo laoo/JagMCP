@@ -1622,9 +1622,10 @@ std::uint32_t Risc::cycle()
     }
   }
   // gpu_mem.v: a fetch served outside the local space (progserv, external) is the gateway's to make,
-  // a long word; a jump aborting it (pabort) leaves the gateway's word untaken
+  // a long word; a jump aborting it (pabort) leaves the gateway's word untaken. The DSP's fetch
+  // outside its local space goes through its gateway the same way.
   std::uint32_t const fetchAddress = ( mFetchPc << 1 ) & 0xfffffcu;
-  bool const fetchExternal = mGpu && mProgServ && !isLocal( fetchAddress );
+  bool const fetchExternal = mProgServ && !isLocal( fetchAddress );
   if ( fetchExternal )
   {
     mRequest.valid = true;

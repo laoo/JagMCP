@@ -2164,7 +2164,8 @@ void MainBus::control( Control const& c, Gathered const& g, Signals& s, Control&
   GatewayNext const gn = gateway( gg, *g.request[GPU], g.dmaen[GPU], gback, ack, s.gw[GPU] );
   bool const gpuBreq = dn.gpuBreq;
   bool const dmaBreq = dn.dmaBreq;
-  std::uint32_t const width = 1u << dg.msized; // width_out
+  // width_out: a program fetch (progown) is a long word, as the GPU's
+  std::uint32_t const width = dg.progown ? 4u : 1u << dg.msized;
 
   // --- Jerry's store: its data taken the cycle after it starts, its halves written as CAS falls
   // (startcas, q3a), or passed in I/O cycles; a new one started as Jerry starts a bus cycle
@@ -3005,7 +3006,13 @@ void MainBus::data( std::uint64_t cycle, Gathered& g, Signals const& s, Control 
   {
     Control::Gateway const& dgc = c.gw[DSP];
     std::uint32_t const size = dgc.msized;
-    if ( dgc.reada && ( ( dg.datAddr & 0xffffffu ) - 0xf10036u < 8 || Tom::decodes( dg.datAddr ) ) )
+    if ( dgc.progown ) // a program fetch: the long word at cpu_addr
+    {
+      std::uint32_t const fetch = dg.cpuAddr & ~3u;
+      dg.pendData = read( fetch, 2 );
+      j.openLow = static_cast<std::uint16_t>( dg.pendData );
+    }
+    else if ( dgc.reada && ( ( dg.datAddr & 0xffffffu ) - 0xf10036u < 8 || Tom::decodes( dg.datAddr ) ) )
       dg.pendData = 0; // a timer or Tom's register: read as Tom's I/O cycle latches it, above
     else if ( dgc.reada )
     {
@@ -3019,7 +3026,7 @@ void MainBus::data( std::uint64_t cycle, Gathered& g, Signals const& s, Control 
   // --- the clock edge ------------------------------------------------------------------------------
   if ( s.jack )
   {
-    j.ad = dg.datAddr;
+    j.ad = ( c.gw[DSP].progown || n.gw[DSP].progown ) ? dg.cpuAddr : dg.datAddr; // out_addr
     j.adPc = dg.datPc;
   }
   // the gateways: cpu_addr for a fetch (cald), dat_addr for a load or store (dald); the masks
